@@ -1,0 +1,41 @@
+# Gradle y carpetas de compilación
+
+.gradle/
+
+/build
+
+/*/build
+
+local.properties
+
+
+
+# Configuración de IDE (Android Studio / IntelliJ)
+
+.idea/
+
+*.iml
+
+*.iws
+
+*.ipr
+
+.idea/workspace.xml
+
+.idea/tasks.xml
+
+.idea/gradle.xml
+
+.idea/assetWizardSettings.xml
+
+.idea/dictionaries
+
+.idea/libraries
+
+
+
+# Archivos del sistema y capturas
+
+.DS_Store
+
+/captures
