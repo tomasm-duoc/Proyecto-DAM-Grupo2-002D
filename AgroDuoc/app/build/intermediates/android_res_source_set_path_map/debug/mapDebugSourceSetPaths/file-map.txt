@@ -1,0 +1,8 @@
+com.duoc.AgroDuocApp.app-pngs-0 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\build\generated\res\pngs\debug
+com.duoc.AgroDuocApp.app-updated_navigation_xml-1 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\build\generated\updated_navigation_xml\debug
+com.duoc.AgroDuocApp.app-packageDebugResources-2 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.duoc.AgroDuocApp.app-packageDebugResources-3 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.duoc.AgroDuocApp.app-debug-4 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\build\intermediates\merged_res\debug\mergeDebugResources
+com.duoc.AgroDuocApp.app-debug-5 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\src\debug\res
+com.duoc.AgroDuocApp.app-main-6 C:\Users\sj-alumno\AndroidStudioProjects\Proyecto-DAM-Grupo2-002D\AgroDuoc\app\src\main\res
+gradleHome-0 C:\Users\sj-alumno\.gradle
