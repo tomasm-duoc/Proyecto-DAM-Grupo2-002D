@@ -1,0 +1,7 @@
+package com.duoc.AgroDuocApp.ui.navigation
+
+sealed class Screen(val route: String) {
+    object Landing : Screen("landing_screen")
+    object Login : Screen("login_screen")
+    object Register : Screen("register_screen")
+}
