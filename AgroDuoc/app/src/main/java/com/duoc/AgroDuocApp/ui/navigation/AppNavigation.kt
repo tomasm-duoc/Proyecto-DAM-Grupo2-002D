@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
 import com.duoc.AgroDuocApp.ui.RegisterScreen
@@ -28,6 +29,9 @@ fun AppNavigation() {
                 onNavigateToRegister = { navController.navigate(Screen.Register.route) },
                 onLoginSuccess = {
                     // Próxima navegación hacia el Home / Ofertas
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Landing.route) { inclusive = true }
+                    }
                 }
             )
         }
@@ -41,6 +45,10 @@ fun AppNavigation() {
                     }
                 }
             )
+        }
+
+        composable(Screen.Home.route) {
+            HomeScreen()
         }
     }
 }

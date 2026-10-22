@@ -56,4 +56,5 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation("androidx.navigation:navigation-compose:2.8.3") // Dependencia para abilitar navegación con jetpack compose
+    implementation("androidx.compose.material:material-icons-extended")
 }
