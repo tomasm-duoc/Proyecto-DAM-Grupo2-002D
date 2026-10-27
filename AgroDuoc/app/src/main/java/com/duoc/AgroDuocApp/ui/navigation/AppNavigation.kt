@@ -10,12 +10,12 @@ import com.duoc.AgroDuocApp.ui.LoginScreen
 import com.duoc.AgroDuocApp.ui.RegisterScreen
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startDestination: String = Screen.Landing.route) {
     val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Landing.route
+        startDestination = startDestination // Arranca en LandingScreen si no hay sesión iniciada
     ) {
         composable(Screen.Landing.route) {
             LandingScreen(
@@ -28,7 +28,6 @@ fun AppNavigation() {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate(Screen.Register.route) },
                 onLoginSuccess = {
-                    // Próxima navegación hacia el Home / Ofertas
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Landing.route) { inclusive = true }
                     }
@@ -41,7 +40,7 @@ fun AppNavigation() {
                 onNavigateToLogin = { navController.navigate(Screen.Login.route) },
                 onRegisterSuccess = {
                     navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Landing.route) { inclusive = false }
+                        popUpTo(Screen.Register.route) { inclusive = true }
                     }
                 }
             )

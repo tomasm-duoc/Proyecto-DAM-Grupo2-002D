@@ -3,6 +3,7 @@ package com.duoc.AgroDuocApp.ui
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -11,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,6 +26,7 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel()
 ) {
     val context = LocalContext.current
+
 
     Column(
         modifier = Modifier
@@ -95,6 +99,7 @@ fun RegisterScreen(
             onValueChange = { viewModel.email = it },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -103,6 +108,19 @@ fun RegisterScreen(
             value = viewModel.telefono,
             onValueChange = { viewModel.telefono = it },
             label = { Text("Teléfono") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            singleLine = true
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Campo obligatorio para guardar las credenciales de sesión
+        OutlinedTextField(
+            value = viewModel.password,
+            onValueChange = { viewModel.password = it },
+            label = { Text("Contraseña") },
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
