@@ -5,38 +5,40 @@ import android.content.SharedPreferences
 import com.duoc.AgroDuocApp.model.User
 
 class UserRepository(context: Context) {
+    private val userDao = AppDatabase.getDatabase(context).userDao()
     private val prefs: SharedPreferences = context.getSharedPreferences("TecMundoPrefs", Context.MODE_PRIVATE)
 
-    fun registrarUsuario(user: User, password: String): Boolean {
-        // Verificamos si ya existe una cuenta con este nombre
-        if (prefs.contains("user_${user.nombre}_pass")) {
-            return false // Ya existe
-        }
+    // Registra al usuario validando que no exista previamente
+    suspend fun registrarUsuario(user: User): Boolean {
+        val existingByRut = userDao.getUserByRut(user.rut)
+        if (existingByRut != null) return false
 
-        // Guardamos las credenciales utilizando el Nombre
-        prefs.edit().apply {
-            putString("user_${user.nombre}_pass", password)
-            putString("user_${user.nombre}_nombre", user.nombre)
-            apply()
-        }
+        val existingByEmail = userDao.getUserByEmail(user.email)
+        if (existingByEmail != null) return false
+
+        userDao.insertUser(user)
         return true
     }
 
-    fun validarCredenciales(nombre: String, pass: String): Boolean {
-        val savedPass = prefs.getString("user_${nombre}_pass", null)
-        return savedPass != null && savedPass == pass
+    // Valida credenciales contra Room
+    suspend fun validarCredenciales(identifier: String, pass: String): User? {
+        return userDao.loginUser(identifier, pass)
     }
 
-    // --- Control de Sesión Activa ---
-    fun guardarSesionActiva(nombre: String) {
-        prefs.edit().putString("logged_user_name", nombre).apply()
+    suspend fun getUserByRut(rut: String): User? {
+        return userDao.getUserByRut(rut)
+    }
+
+    // Guarda el RUT para mantener la sesion iniciada
+    fun guardarSesionActiva(rut: String) {
+        prefs.edit().putString("logged_user_rut", rut).apply()
     }
 
     fun obtenerSesionActiva(): String? {
-        return prefs.getString("logged_user_name", null)
+        return prefs.getString("logged_user_rut", null)
     }
 
     fun cerrarSesion() {
-        prefs.edit().remove("logged_user_name").apply()
+        prefs.edit().remove("logged_user_rut").apply()
     }
 }
