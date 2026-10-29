@@ -1,6 +1,7 @@
 package com.duoc.AgroDuocApp.ui
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ fun LoginScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -47,7 +49,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = viewModel.usuario,
             onValueChange = { viewModel.usuario = it },
-            label = { Text("Usuario") },
+            label = { Text("Nombre, Email o RUT") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -72,7 +74,7 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                if (viewModel.validarLogin()) {
+                viewModel.validarYLogin {
                     Toast.makeText(context, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show()
                     onLoginSuccess()
                 }
