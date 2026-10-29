@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.duoc.AgroDuocApp.R
 import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
@@ -20,7 +21,8 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
         composable(Screen.Landing.route) {
             LandingScreen(
                 onNavigateToLogin = { navController.navigate(Screen.Login.route) },
-                onNavigateToRegister = { navController.navigate(Screen.Register.route) }
+                onNavigateToRegister = { navController.navigate(Screen.Register.route) },
+                backgroundImageRes = R.drawable.fondo_agricola
             )
         }
 
@@ -47,7 +49,13 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
         }
 
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                onLogout = {
+                    navController.navigate(Screen.Landing.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
