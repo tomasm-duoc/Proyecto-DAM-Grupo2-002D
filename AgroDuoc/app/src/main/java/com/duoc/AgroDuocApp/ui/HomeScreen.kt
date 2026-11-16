@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
@@ -30,6 +31,7 @@ import com.duoc.AgroDuocApp.repository.UserRepository
 @Composable
 fun HomeScreen(
     onLogout: () -> Unit,
+    onNavigateToPerfil: () -> Unit, // <--- 1. AGREGA ESTA LÍNEA AQUÍ
     productos: List<Producto> = List(5) { Producto() }
 ) {
     val context = LocalContext.current
@@ -64,7 +66,8 @@ fun HomeScreen(
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
-                onProfileClick = { showLogoutDialog = true }
+                onNavigateToPerfil = onNavigateToPerfil, // <--- 2. CONÉCTALO AQUÍ
+                onLogoutClick = { showLogoutDialog = true } // <--- 3. CAMBIA EL NOMBRE AQUÍ
             )
         }
     ) { paddingValues ->
@@ -113,7 +116,7 @@ fun HomeScreen(
 
             // Título de la sección
             Text(
-                text = "🌾 Ofertas y Insumos Destacados",
+                text = "🌾Ofertas y Insumos Destacados",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF1B4D3E),
@@ -232,7 +235,10 @@ fun ProductoItem(producto: Producto) {
 }
 
 @Composable
-fun BottomNavigationBar(onProfileClick: () -> Unit) {
+fun BottomNavigationBar(
+    onNavigateToPerfil: () -> Unit, // <--- Nuevo: para ir al perfil
+    onLogoutClick: () -> Unit       // <--- Renombrado: antes se llamaba onProfileClick
+) {
     NavigationBar(
         containerColor = Color.White,
         contentColor = Color(0xFF2E7D32)
@@ -246,15 +252,15 @@ fun BottomNavigationBar(onProfileClick: () -> Unit) {
         )
         NavigationBarItem(
             selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Info, contentDescription = "Info") },
+            onClick = onNavigateToPerfil, // <--- Aquí conectamos el clic del ícono Person
+            icon = { Icon(Icons.Default.Person, contentDescription = "Info") },
             label = { Text("Info") },
             colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32))
         )
         NavigationBarItem(
             selected = false,
-            onClick = onProfileClick,
-            icon = { Icon(Icons.Default.Person, contentDescription = "Cerrar Sesión") },
+            onClick = onLogoutClick, // <--- Aquí queda la acción de cerrar sesión
+            icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión") },
             label = { Text("Salir") },
             colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32))
         )

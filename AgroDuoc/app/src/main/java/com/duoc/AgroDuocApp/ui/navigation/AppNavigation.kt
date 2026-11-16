@@ -8,6 +8,7 @@ import com.duoc.AgroDuocApp.R
 import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
+import com.duoc.AgroDuocApp.ui.PerfilScreen
 import com.duoc.AgroDuocApp.ui.RegisterScreen
 
 @Composable
@@ -53,6 +54,28 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                 onLogout = {
                     navController.navigate(Screen.Landing.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToPerfil = {
+                    navController.navigate(Screen.Perfil.route) {
+                        launchSingleTop = true // <--- Evita duplicar PerfilScreen
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Perfil.route) {
+            PerfilScreen(
+                onBackClick = {
+                    // Verifica que realmente estés en Perfil antes de retroceder
+                    if (navController.currentDestination?.route == Screen.Perfil.route) {
+                        // Intenta volver atrás; si no hay pantalla anterior, va directo a Home
+                        val volvio = navController.popBackStack()
+                        if (!volvio) {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        }
                     }
                 }
             )
