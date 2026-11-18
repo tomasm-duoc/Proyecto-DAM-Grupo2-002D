@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.duoc.AgroDuocApp.R
+import com.duoc.AgroDuocApp.ui.CrearSolicitudScreen
 import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
@@ -60,8 +61,15 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                     navController.navigate(Screen.Perfil.route) {
                         launchSingleTop = true // <--- Evita duplicar PerfilScreen
                     }
+                },
+                onNavigateToCrearSolicitud = {
+                    navController.navigate(Screen.CrearSolicitud.route)
                 }
             )
+        }
+
+        composable(Screen.CrearSolicitud.route) {
+            CrearSolicitudScreen()
         }
 
         composable(Screen.Perfil.route) {

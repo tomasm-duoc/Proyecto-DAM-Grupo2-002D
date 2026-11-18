@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -32,6 +33,7 @@ import com.duoc.AgroDuocApp.repository.UserRepository
 fun HomeScreen(
     onLogout: () -> Unit,
     onNavigateToPerfil: () -> Unit, // <--- 1. AGREGA ESTA LÍNEA AQUÍ
+    onNavigateToCrearSolicitud: () -> Unit,
     productos: List<Producto> = List(5) { Producto() }
 ) {
     val context = LocalContext.current
@@ -68,6 +70,11 @@ fun HomeScreen(
             BottomNavigationBar(
                 onNavigateToPerfil = onNavigateToPerfil, // <--- 2. CONÉCTALO AQUÍ
                 onLogoutClick = { showLogoutDialog = true } // <--- 3. CAMBIA EL NOMBRE AQUÍ
+            )
+        },
+        floatingActionButton = { // <--- Se añade el boton flotante Crear Solicitud
+            CrearSolicitud(
+                onNavigateToCrearSolicitud = onNavigateToCrearSolicitud
             )
         }
     ) { paddingValues ->
@@ -136,6 +143,28 @@ fun HomeScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CrearSolicitud(
+    onNavigateToCrearSolicitud: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = { onNavigateToCrearSolicitud() },
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF2E7D32), // Verde acorde a tu tema
+            contentColor = Color.White
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = "Crear Solicitud"
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = "Nueva Solicitud")
     }
 }
 
