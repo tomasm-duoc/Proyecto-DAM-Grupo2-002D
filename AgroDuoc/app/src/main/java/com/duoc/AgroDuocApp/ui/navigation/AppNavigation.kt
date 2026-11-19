@@ -69,7 +69,11 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
         }
 
         composable(Screen.CrearSolicitud.route) {
-            CrearSolicitudScreen()
+            CrearSolicitudScreen(
+                onSolicitudGuardada = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         composable(Screen.Perfil.route) {

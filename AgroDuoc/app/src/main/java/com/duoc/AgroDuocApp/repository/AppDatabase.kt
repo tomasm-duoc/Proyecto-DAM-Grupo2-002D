@@ -5,12 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.duoc.AgroDuocApp.model.Producto
+import com.duoc.AgroDuocApp.model.Solicitud
 import com.duoc.AgroDuocApp.model.User
 
-@Database(entities = [User::class, Producto::class], version = 2, exportSchema = false)
+@Database(entities = [User::class, Producto::class, Solicitud::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
+    abstract fun solicitudDao(): SolicitudDao
 
     companion object {
         @Volatile
