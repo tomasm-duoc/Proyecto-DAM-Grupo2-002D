@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -39,12 +40,10 @@ fun PerfilScreen(
     val context = LocalContext.current
     val userRepository = remember { UserRepository(context) }
 
-    // Estados para guardar el usuario real cargado desde Room
     var usuario by remember { mutableStateOf<User?>(null) }
     var cargando by remember { mutableStateOf(true) }
     var isNavigatingBack by remember { mutableStateOf(false) }
 
-    // Al abrir la pantalla, busca el RUT activo en SharedPreferences y consulta Room
     LaunchedEffect(Unit) {
         val rutActivo = userRepository.obtenerSesionActiva()
         if (rutActivo != null) {
@@ -53,50 +52,111 @@ fun PerfilScreen(
         cargando = false
     }
 
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp),
+            .background(Color(0xFFF9FBE7))
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // 0. Boton para volver
+        // 1. Avatar mas columna verde
 
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(Color(0xFF1B4D3E), Color(0xFF2E7D32), Color(0xFF43A047))
+                    )
+                )
+                .padding(horizontal = 24.dp, vertical = 20.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable(enabled = !isNavigatingBack) {
-                        isNavigatingBack = true
-                        onBackClick()
-                    }
-                    .padding(vertical = 8.dp, horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
-                    tint = Color.Black,
-                    modifier = Modifier.size(28.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Volver",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.Black
-                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable(enabled = !isNavigatingBack) {
+                                isNavigatingBack = true
+                                onBackClick()
+                            }
+                            .padding(vertical = 6.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = Color.White,
+                            modifier = Modifier.size(26.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Volver",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // Avatar + Botón "+"
+                Box(
+                    modifier = Modifier.size(130.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .border(2.5.dp, Color(0xFF1B4D3E), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val tieneFoto = !usuario?.fotoPerfilUri.isNullOrBlank()
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.size(80.dp),
+                            tint = if (tieneFoto) Color(0xFF2E7D32) else Color(0xFF1B4D3E)
+                        )
+                    }
+
+                    // Botón "+"
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .align(Alignment.BottomEnd)
+                            .clip(CircleShape)
+                            .background(Color(0xFFE8F5E9))
+                            .border(2.dp, Color(0xFF1B4D3E), CircleShape)
+                            .clickable { onCambiarFotoClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Cambiar foto",
+                            tint = Color(0xFF1B4D3E),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
 
-        // Si aún está consultando la base de datos Room, muestra un indicador de carga
+
         if (cargando) {
             Box(
                 modifier = Modifier
@@ -107,69 +167,23 @@ fun PerfilScreen(
                 CircularProgressIndicator(color = Color(0xFF2E7D32))
             }
         } else {
-
-            // 1. SECCIÓN AVATAR + BOTÓN "+"
-
-            Box(
-                modifier = Modifier.size(130.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFF0F0F0))
-                        .border(2.dp, Color.Black, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    // Si el usuario tomó foto en RegisterScreen, el ícono se pinta verde
-                    val tieneFoto = !usuario?.fotoPerfilUri.isNullOrBlank()
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Foto de perfil",
-                        modifier = Modifier.size(80.dp),
-                        tint = if (tieneFoto) Color(0xFF2E7D32) else Color.Black
-                    )
-                }
-
-                // Botón "+"
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .align(Alignment.BottomEnd)
-                        .clip(CircleShape)
-                        .background(Color.LightGray)
-                        .border(2.dp, Color.Black, CircleShape)
-                        .clickable { onCambiarFotoClick() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Cambiar foto",
-                        tint = Color.Black,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-
-            // 2. Datos del usuario (Definidos a la hora de registrar su cuenta)
-
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 20.dp),
                 horizontalAlignment = Alignment.Start
             ) {
+
+                // 2. Datos del usuario
+
                 Text(
                     text = "Datos",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = Color(0xFF1B4D3E), // Verde oscuro consistente con HomeScreen
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                // Muestra los datos traídos desde Room (si es null, muestra vacío)
                 CampoDatoPerfil(etiqueta = "RUT", valor = usuario?.rut ?: "")
                 CampoDatoPerfil(etiqueta = "Nombre", valor = usuario?.nombre ?: "")
                 CampoDatoPerfil(etiqueta = "Apellido", valor = usuario?.apellido ?: "")
@@ -181,24 +195,17 @@ fun PerfilScreen(
                     valor = usuario?.password ?: "",
                     esPassword = true
                 )
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
+                //3. Calificacion
+                val clasificacion = 4.6f
 
-            // 3. Calificacion (Podria borrarse despues, datos predeterminados)
-
-            val clasificacion = 4.6f
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.Start
-            ) {
                 Text(
                     text = "Clasificación: $clasificacion",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
+                    color = Color(0xFF1B4D3E),
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -214,21 +221,21 @@ fun PerfilScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (estaLlena) Color.Black else Color.LightGray),
+                                .background(if (estaLlena) Color(0xFF2E7D32) else Color.LightGray),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = if (estaLlena) Icons.Default.Star else Icons.Outlined.StarOutline,
                                 contentDescription = "Estrella $i",
-                                tint = Color.White,
+                                tint = if (estaLlena) Color(0xFFFFB300) else Color.White,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
 }
@@ -245,13 +252,13 @@ fun CampoDatoPerfil(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp),
-        shape = RoundedCornerShape(4.dp),
-        border = BorderStroke(1.5.dp, Color.Black),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.5.dp, Color(0xFF2E7D32)), // Borde verde agrícola
         color = Color.White
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -274,7 +281,6 @@ fun CampoDatoPerfil(
                 modifier = Modifier.weight(1f)
             )
 
-            //Permite mostrar la contraseña y ocultarla
             if (esPassword && valor.isNotBlank()) {
                 IconButton(
                     onClick = { passwordVisible = !passwordVisible },
@@ -283,7 +289,7 @@ fun CampoDatoPerfil(
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         contentDescription = if (passwordVisible) "Ocultar contraseña" else "Ver contraseña",
-                        tint = Color.Black
+                        tint = Color(0xFF1B4D3E)
                     )
                 }
             }
