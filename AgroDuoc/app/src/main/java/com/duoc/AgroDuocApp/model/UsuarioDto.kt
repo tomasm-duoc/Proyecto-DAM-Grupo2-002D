@@ -9,6 +9,6 @@ data class UsuarioDto(
     val email: String,
     val telefono: String,
     val rol: String,
-    val foto_perfil: XanoImage?,
-    val calificacion: Double
+    val foto_perfil: String?,
+    val calificacion: Double?
 )

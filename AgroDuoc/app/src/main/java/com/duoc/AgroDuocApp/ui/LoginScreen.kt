@@ -49,7 +49,7 @@ fun LoginScreen(
         OutlinedTextField(
             value = viewModel.usuario,
             onValueChange = { viewModel.usuario = it },
-            label = { Text("Nombre, Email o RUT") },
+            label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )

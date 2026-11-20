@@ -33,7 +33,7 @@ interface XanoApiService {
     @POST("auth/login")
     suspend fun login(@Body body: Map<String, String>): AuthResponse
 
-    // 7. Registro de usuario
+    // 7. Registro de usuario con JSON limpio
     @POST("auth/signup")
     suspend fun signup(@Body body: Map<String, String>): AuthResponse
 }

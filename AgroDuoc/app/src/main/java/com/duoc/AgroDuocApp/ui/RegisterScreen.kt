@@ -47,6 +47,7 @@ fun RegisterScreen(
     ) { bitmap ->
         if (bitmap != null) {
             capturedBitmap = bitmap
+            viewModel.capturedBitmap = bitmap
             viewModel.fotoPerfilUri = "captured_bitmap_present"
         }
     }

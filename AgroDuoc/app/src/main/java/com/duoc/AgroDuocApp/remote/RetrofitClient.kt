@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:i4xGSm-6/"
+    private const val BASE_URL = "https://x8ki-letl-twmt.n7.xano.io/api:K6gFVJk0/"
 
     fun getInstance(context: Context): XanoApiService {
         val logging = HttpLoggingInterceptor().apply {
