@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -233,8 +234,16 @@ fun BottomNavigationBar(
             selected = false,
             onClick = onNavigateToPerfil,
             icon = { Icon(Icons.Default.Person, contentDescription = "Info") },
-            label = { Text("Info") },
+            label = { Text("Perfil") },
             colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32))
+        )
+        NavigationBarItem(
+            selected = false,
+            onClick = { },
+            icon = { Icon(Icons.Default.Info, contentDescription = "Inicio") },
+            label = { Text("Info") },
+            colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32)
+            )
         )
         NavigationBarItem(
             selected = false,
