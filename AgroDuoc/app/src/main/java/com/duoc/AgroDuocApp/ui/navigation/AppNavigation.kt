@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.duoc.AgroDuocApp.R
 import com.duoc.AgroDuocApp.ui.CrearSolicitudScreen
+import com.duoc.AgroDuocApp.ui.FaqsScreen
 import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
@@ -62,6 +63,11 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                         launchSingleTop = true // <--- Evita duplicar PerfilScreen
                     }
                 },
+                onNavigateToInfo = {
+                    navController.navigate(Screen.Faqs.route){
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToCrearSolicitud = {
                     navController.navigate(Screen.CrearSolicitud.route)
                 }
@@ -85,6 +91,20 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                         val volvio = navController.popBackStack()
                         if (!volvio) {
                             navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+        composable(Screen.Faqs.route){
+            FaqsScreen(
+                onBackClick = {
+                    if(navController.currentDestination?.route == Screen.Faqs.route){
+                        val volvio = navController.popBackStack()
+                        if(!volvio){
+                            navController.navigate(Screen.Home.route){
                                 popUpTo(Screen.Home.route) { inclusive = true }
                             }
                         }

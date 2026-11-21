@@ -31,6 +31,7 @@ import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
 fun HomeScreen(
     onLogout: () -> Unit,
     onNavigateToPerfil: () -> Unit,
+    onNavigateToInfo: () -> Unit,
     onNavigateToCrearSolicitud: () -> Unit,
     solicitudViewModel: SolicitudViewModel = viewModel()
 ) {
@@ -70,6 +71,7 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 onNavigateToPerfil = onNavigateToPerfil,
+                onNavigateToInfo = onNavigateToInfo,
                 onLogoutClick = { showLogoutDialog = true }
             )
         },
@@ -214,6 +216,7 @@ fun SolicitudItem(solicitud: Solicitud) {
 @Composable
 fun BottomNavigationBar(
     onNavigateToPerfil: () -> Unit,
+    onNavigateToInfo: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     NavigationBar(
@@ -233,14 +236,14 @@ fun BottomNavigationBar(
         NavigationBarItem(
             selected = false,
             onClick = onNavigateToPerfil,
-            icon = { Icon(Icons.Default.Person, contentDescription = "Info") },
+            icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
             label = { Text("Perfil") },
             colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32))
         )
         NavigationBarItem(
             selected = false,
-            onClick = { },
-            icon = { Icon(Icons.Default.Info, contentDescription = "Inicio") },
+            onClick = onNavigateToInfo,
+            icon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             label = { Text("Info") },
             colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32)
             )
