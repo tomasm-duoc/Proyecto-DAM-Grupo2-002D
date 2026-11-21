@@ -2,6 +2,7 @@ package com.duoc.AgroDuocApp.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,6 +38,7 @@ fun HomeScreen(
     onNavigateToPerfil: () -> Unit,
     onNavigateToInfo: () -> Unit,
     onNavigateToCrearSolicitud: () -> Unit,
+    onSolicitudClick: (Int) -> Unit = {},
     solicitudViewModel: SolicitudViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -150,7 +152,10 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(solicitudes, key = { it.id }) { solicitud ->
-                    SolicitudItem(solicitud = solicitud)
+                    SolicitudItem(
+                        solicitud = solicitud,
+                        onClick = { onSolicitudClick(solicitud.id) }
+                    )
                 }
             }
         }
@@ -180,9 +185,14 @@ fun CrearSolicitud(
 }
 
 @Composable
-fun SolicitudItem(solicitud: Solicitud) {
+fun SolicitudItem(
+    solicitud: Solicitud,
+    onClick: () -> Unit = {}
+    ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable{ onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)

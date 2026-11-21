@@ -1,11 +1,14 @@
 package com.duoc.AgroDuocApp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.duoc.AgroDuocApp.R
 import com.duoc.AgroDuocApp.ui.CrearSolicitudScreen
+import com.duoc.AgroDuocApp.ui.DetalleSolicitudProductorScreen
 import com.duoc.AgroDuocApp.ui.FaqsScreen
 import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
@@ -70,6 +73,9 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                 },
                 onNavigateToCrearSolicitud = {
                     navController.navigate(Screen.CrearSolicitud.route)
+                },
+                onSolicitudClick = { solicitudId ->
+                    navController.navigate(Screen.DetalleSolicitudProductor.createRoute(solicitudId))
                 }
             )
         }
@@ -102,10 +108,31 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                 }
             )
         }
+
         composable(Screen.Faqs.route){
             FaqsScreen(
                 onBackClick = {
                     if(navController.currentDestination?.route == Screen.Faqs.route){
+                        val volvio = navController.popBackStack()
+                        if(!volvio){
+                            navController.navigate(Screen.Home.route){
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.DetalleSolicitudProductor.route,
+            arguments = listOf(navArgument("solicitudId"){ type = NavType.IntType })
+        ){ backStackEntry ->
+            val solicitudId = backStackEntry.arguments?.getInt("solicitudId") ?: 0
+            DetalleSolicitudProductorScreen(
+                solicitudId = solicitudId,
+                onBackClick = {
+                    if(navController.currentDestination?.route == Screen.DetalleSolicitudProductor.route){
                         val volvio = navController.popBackStack()
                         if(!volvio){
                             navController.navigate(Screen.Home.route){
