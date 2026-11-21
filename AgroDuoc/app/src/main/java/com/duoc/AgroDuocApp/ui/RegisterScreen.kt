@@ -58,7 +58,7 @@ fun RegisterScreen(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = { Text("Confirmar Registro") },
-            text = { Text("¿Deseas registrar este usuario en TecMundo Connect con base de datos local Room?") },
+            text = { Text("¿Estás seguro/a de que tus datos están correctamente ingresados? Si es así, presiona 'Confirmar'.") },
             confirmButton = {
                 TextButton(
                     onClick = {
