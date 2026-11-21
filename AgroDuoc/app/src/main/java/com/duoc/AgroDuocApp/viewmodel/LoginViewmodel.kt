@@ -37,9 +37,20 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     // Guardar el token Bearer en SharedPreferences para autenticar peticiones futuras
                     val prefs = getApplication<Application>().getSharedPreferences("TecMundoPrefs", Context.MODE_PRIVATE)
                     prefs.edit().apply {
-                        putString("xano_auth_token", response.authToken)
-                        putString("logged_user_email", usuario)
-                        apply()
+                        if (!response.authToken.isNullOrEmpty()) {
+                            // Guardar el token Bearer y credenciales en SharedPreferences
+                            val prefs = getApplication<Application>().getSharedPreferences("TecMundoPrefs", Context.MODE_PRIVATE)
+                            prefs.edit().apply {
+                                putString("xano_auth_token", response.authToken)
+                                putString("logged_user_email", usuario.trim())
+                                putString("logged_user_rut", usuario.trim()) // Compatibilidad con UserRepository
+                                putString("logged_user_password", password)  // Para mostrar los puntos en PerfilScreen
+                                apply()
+                            }
+
+                            errorMessage = null
+                            onSuccess()
+                        }
                     }
 
                     errorMessage = null

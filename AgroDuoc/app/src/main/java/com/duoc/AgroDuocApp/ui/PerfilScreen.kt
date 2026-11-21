@@ -49,9 +49,40 @@ fun PerfilScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val rutActivo = userRepository.obtenerSesionActiva()
-        if (rutActivo != null) {
-            usuario = userRepository.getUserByRut(rutActivo)
+        val prefs = context.getSharedPreferences("TecMundoPrefs", android.content.Context.MODE_PRIVATE)
+        // Lee el email guardado por LoginViewModel (o el rut si existiera)
+        val identificadorActivo = prefs.getString("logged_user_email", null)
+            ?: userRepository.obtenerSesionActiva()
+        val passGuardada = prefs.getString("logged_user_password", "") ?: ""
+
+        if (!identificadorActivo.isNullOrBlank()) {
+            try {
+                val apiService = com.duoc.AgroDuocApp.remote.RetrofitClient.getInstance(context)
+                val usuariosXano = apiService.getUsuarios()
+
+                val encontrado = usuariosXano.find {
+                    it.email.equals(identificadorActivo.trim(), ignoreCase = true) ||
+                            it.rut.equals(identificadorActivo.trim(), ignoreCase = true)
+                }
+
+                if (encontrado != null) {
+                    usuario = User(
+                        rut = encontrado.rut,
+                        nombre = encontrado.nombre,
+                        apellido = encontrado.apellido,
+                        email = encontrado.email,
+                        telefono = encontrado.telefono,
+                        rol = encontrado.rol,
+                        password = passGuardada,
+                        fotoPerfilUri = encontrado.foto_perfil
+                    )
+                } else {
+                    usuario = userRepository.getUserByRut(identificadorActivo)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                usuario = userRepository.getUserByRut(identificadorActivo)
+            }
         }
         cargando = false
     }
