@@ -1,5 +1,6 @@
 package com.duoc.AgroDuocApp.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,13 +11,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,24 +29,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.duoc.AgroDuocApp.model.User
 import com.duoc.AgroDuocApp.repository.UserRepository
-import com.duoc.AgroDuocApp.ui.theme.AmarilloDorado
 import com.duoc.AgroDuocApp.ui.theme.CremaFondo
 import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
-import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 
 @Composable
 fun PerfilScreen(
-    onCambiarFotoClick: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToInfo: () -> Unit = {},
+    onCambiarFotoClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val userRepository = remember { UserRepository(context) }
 
     var usuario by remember { mutableStateOf<User?>(null) }
     var cargando by remember { mutableStateOf(true) }
-    var isNavigatingBack by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val rutActivo = userRepository.obtenerSesionActiva()
@@ -58,65 +56,65 @@ fun PerfilScreen(
         cargando = false
     }
 
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CremaFondo)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        // 1. Avatar mas columna verde
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(VerdeOscuro, VerdePrincipal, VerdeClaro)
-                    )
-                )
-                .padding(horizontal = 24.dp, vertical = 20.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable(enabled = !isNavigatingBack) {
-                                isNavigatingBack = true
-                                onBackClick()
-                            }
-                            .padding(vertical = 6.dp, horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Volver",
-                            tint = Color.White,
-                            modifier = Modifier.size(26.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Volver",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.White
-                        )
+    // Diálogo de confirmación para el botón "Salir" de la barra inferior
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Cerrar Sesión") },
+            text = { Text("¿Deseas cerrar tu sesión actual en TecMundo Connect?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutDialog = false
+                        userRepository.cerrarSesion()
+                        Toast.makeText(context, "Sesión cerrada con éxito", Toast.LENGTH_SHORT).show()
+                        onLogout()
                     }
+                ) {
+                    Text("Cerrar Sesión", color = VerdePrincipal)
                 }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
-                // Avatar + Botón "+"
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(
+                currentRoute = "perfil",
+                onNavigateToHome = onNavigateToHome,
+                onNavigateToPerfil = { },
+                onNavigateToInfo = onNavigateToInfo,
+                onLogoutClick = { showLogoutDialog = true }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(CremaFondo)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            // 1. CABECERA VERDE CON FOTO DE PERFIL
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(VerdeOscuro, VerdePrincipal, VerdeClaro)
+                        )
+                    )
+                    .padding(vertical = 28.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Box(
                     modifier = Modifier.size(130.dp),
                     contentAlignment = Alignment.Center
@@ -144,7 +142,7 @@ fun PerfilScreen(
                             .size(38.dp)
                             .align(Alignment.BottomEnd)
                             .clip(CircleShape)
-                            .background(VerdeSuave)
+                            .background(CremaFondo)
                             .border(2.dp, VerdeOscuro, CircleShape)
                             .clickable { onCambiarFotoClick() },
                         contentAlignment = Alignment.Center
@@ -157,90 +155,49 @@ fun PerfilScreen(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
-        }
 
 
-        if (cargando) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = VerdePrincipal)
-            }
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
-                horizontalAlignment = Alignment.Start
-            ) {
+            // 2. SECCIÓN DE DATOS DEL USUARIO
 
-                // 2. Datos del usuario
-
-                Text(
-                    text = "Datos",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = VerdeOscuro, // Verde oscuro consistente con HomeScreen
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                CampoDatoPerfil(etiqueta = "RUT", valor = usuario?.rut ?: "")
-                CampoDatoPerfil(etiqueta = "Nombre", valor = usuario?.nombre ?: "")
-                CampoDatoPerfil(etiqueta = "Apellido", valor = usuario?.apellido ?: "")
-                CampoDatoPerfil(etiqueta = "Email", valor = usuario?.email ?: "")
-                CampoDatoPerfil(etiqueta = "Teléfono", valor = usuario?.telefono ?: "")
-                CampoDatoPerfil(etiqueta = "Rol", valor = usuario?.rol ?: "")
-                CampoDatoPerfil(
-                    etiqueta = "Contraseña",
-                    valor = usuario?.password ?: "",
-                    esPassword = true
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                //3. Calificacion
-                val clasificacion = 4.6f
-
-                Text(
-                    text = "Clasificación: $clasificacion",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = VerdeOscuro,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+            if (cargando) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    val estrellasLlenas = clasificacion.toInt()
-                    for (i in 1..5) {
-                        val estaLlena = i <= estrellasLlenas
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(if (estaLlena) VerdePrincipal else Color.LightGray),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = if (estaLlena) Icons.Default.Star else Icons.Outlined.StarOutline,
-                                contentDescription = "Estrella $i",
-                                tint = if (estaLlena) AmarilloDorado else Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
+                    CircularProgressIndicator(color = VerdePrincipal)
                 }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 20.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Datos",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = VerdeOscuro,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    CampoDatoPerfil(etiqueta = "RUT", valor = usuario?.rut ?: "")
+                    CampoDatoPerfil(etiqueta = "Nombre", valor = usuario?.nombre ?: "")
+                    CampoDatoPerfil(etiqueta = "Apellido", valor = usuario?.apellido ?: "")
+                    CampoDatoPerfil(etiqueta = "Email", valor = usuario?.email ?: "")
+                    CampoDatoPerfil(etiqueta = "Teléfono", valor = usuario?.telefono ?: "")
+                    CampoDatoPerfil(etiqueta = "Rol", valor = usuario?.rol ?: "")
+                    CampoDatoPerfil(
+                        etiqueta = "Contraseña",
+                        valor = usuario?.password ?: "",
+                        esPassword = true
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
         }
     }
@@ -259,7 +216,7 @@ fun CampoDatoPerfil(
             .fillMaxWidth()
             .padding(vertical = 5.dp),
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.5.dp, VerdePrincipal), // Borde verde agrícola
+        border = BorderStroke(1.5.dp, VerdePrincipal),
         color = Color.White
     ) {
         Row(

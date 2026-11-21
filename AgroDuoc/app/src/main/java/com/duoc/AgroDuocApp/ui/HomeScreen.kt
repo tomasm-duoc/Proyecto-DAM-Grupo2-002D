@@ -72,8 +72,12 @@ fun HomeScreen(
     }
 
     Scaffold(
+
+        // 1. Dentro de HomeScreen, en el Scaffold:
         bottomBar = {
             BottomNavigationBar(
+                currentRoute = "home",
+                onNavigateToHome = { }, // Ya estás en Home
                 onNavigateToPerfil = onNavigateToPerfil,
                 onNavigateToInfo = onNavigateToInfo,
                 onLogoutClick = { showLogoutDialog = true }
@@ -217,8 +221,11 @@ fun SolicitudItem(solicitud: Solicitud) {
     }
 }
 
+// 2. Al final de HomeScreen.kt, reemplaza BottomNavigationBar por esto:
 @Composable
 fun BottomNavigationBar(
+    currentRoute: String = "home",
+    onNavigateToHome: () -> Unit = {},
     onNavigateToPerfil: () -> Unit,
     onNavigateToInfo: () -> Unit,
     onLogoutClick: () -> Unit
@@ -228,8 +235,8 @@ fun BottomNavigationBar(
         contentColor = VerdePrincipal
     ) {
         NavigationBarItem(
-            selected = true,
-            onClick = { },
+            selected = currentRoute == "home",
+            onClick = onNavigateToHome,
             icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
             colors = NavigationBarItemDefaults.colors(
@@ -238,18 +245,24 @@ fun BottomNavigationBar(
             )
         )
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == "perfil",
             onClick = onNavigateToPerfil,
             icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
             label = { Text("Perfil") },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = VerdePrincipal)
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = VerdePrincipal,
+                indicatorColor = CremaFondo
+            )
         )
         NavigationBarItem(
-            selected = false,
+            selected = currentRoute == "info",
             onClick = onNavigateToInfo,
             icon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             label = { Text("Info") },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = VerdePrincipal)
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = VerdePrincipal,
+                indicatorColor = CremaFondo
+            )
         )
         NavigationBarItem(
             selected = false,

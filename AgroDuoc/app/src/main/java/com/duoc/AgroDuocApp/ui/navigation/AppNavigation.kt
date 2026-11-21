@@ -84,16 +84,20 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
 
         composable(Screen.Perfil.route) {
             PerfilScreen(
-                onBackClick = {
-                    // Verifica que realmente estés en Perfil antes de retroceder
-                    if (navController.currentDestination?.route == Screen.Perfil.route) {
-                        // Intenta volver atrás; si no hay pantalla anterior, va directo a Home
-                        val volvio = navController.popBackStack()
-                        if (!volvio) {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(Screen.Home.route) { inclusive = true }
-                            }
-                        }
+                onLogout = {
+                    navController.navigate(Screen.Landing.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToInfo = {
+                    navController.navigate(Screen.Faqs.route) {
+                        launchSingleTop = true
                     }
                 }
             )
