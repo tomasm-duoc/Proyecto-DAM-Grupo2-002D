@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.duoc.AgroDuocApp.ui.theme.CremaFondo
+import com.duoc.AgroDuocApp.ui.theme.GrisClaro
+import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
+import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
+import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
 
 @Composable
@@ -47,12 +51,6 @@ fun CrearSolicitudScreen(
     onSolicitudGuardada: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
-
-    // Declaracion de colores (Temporal)
-    val verdePrincipal = Color(0xFF2E7D32)
-    val verdeOscuro = Color(0xFF1B5E20)
-    val cremaFondo = Color(0xFFF9F8F0)
-    val verdeSuave = Color(0xFFE8F5E9)
 
     // Cuando la funcion de guardarSolicitud() (de SolicitudViewModel) termine, este se activa
     LaunchedEffect(solicitudViewModel.guardadoExitoso) {
@@ -69,7 +67,7 @@ fun CrearSolicitudScreen(
                     .fillMaxWidth()
                     .background(
                         brush = Brush.verticalGradient(
-                            colors = listOf(verdePrincipal, verdeOscuro)
+                            colors = listOf(VerdePrincipal, VerdeOscuro)
                         )
                     )
                     .padding(horizontal = 16.dp, vertical = 20.dp)
@@ -93,7 +91,7 @@ fun CrearSolicitudScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(cremaFondo)
+                .background(CremaFondo)
                 .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(scrollState),
@@ -255,13 +253,13 @@ fun CrearSolicitudScreen(
                             Surface(
                                 modifier = Modifier.size(68.dp),
                                 shape = RoundedCornerShape(8.dp),
-                                color = verdeSuave
+                                color = VerdeSuave
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = "Agregar foto",
-                                        tint = verdePrincipal
+                                        tint = VerdePrincipal
                                     )
                                 }
                             }
@@ -269,7 +267,7 @@ fun CrearSolicitudScreen(
                                 Surface(
                                     modifier = Modifier.size(68.dp),
                                     shape = RoundedCornerShape(8.dp),
-                                    color = Color(0xFFF1F1F1)
+                                    color = GrisClaro
                                 ) {}
                             }
                         }
@@ -283,7 +281,7 @@ fun CrearSolicitudScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = verdePrincipal),
+                        colors = ButtonDefaults.buttonColors(containerColor = VerdePrincipal),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(

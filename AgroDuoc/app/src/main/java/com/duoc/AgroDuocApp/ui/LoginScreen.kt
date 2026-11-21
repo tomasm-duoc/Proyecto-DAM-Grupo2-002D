@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.viewmodel.LoginViewModel
 
 @Composable
@@ -82,7 +83,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+            colors = ButtonDefaults.buttonColors(containerColor = VerdePrincipal)
         ) {
             Text("Ingresar")
         }
@@ -92,7 +93,7 @@ fun LoginScreen(
         Text("o", color = Color.Gray)
 
         TextButton(onClick = onNavigateToRegister) {
-            Text("Crear una cuenta", fontWeight = FontWeight.Bold, color = Color(0xFF2E7D32))
+            Text("Crear una cuenta", fontWeight = FontWeight.Bold, color = VerdePrincipal)
         }
     }
 }

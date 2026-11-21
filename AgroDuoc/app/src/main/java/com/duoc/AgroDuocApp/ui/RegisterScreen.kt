@@ -29,6 +29,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
+import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 import com.duoc.AgroDuocApp.viewmodel.RegisterViewModel
 
 @Composable
@@ -67,7 +69,7 @@ fun RegisterScreen(
                         }
                     }
                 ) {
-                    Text("Confirmar", color = Color(0xFF2E7D32))
+                    Text("Confirmar", color = VerdePrincipal)
                 }
             },
             dismissButton = {
@@ -92,7 +94,7 @@ fun RegisterScreen(
             text = "TecMundo Connect",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF2E7D32),
+            color = VerdePrincipal,
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
@@ -101,8 +103,8 @@ fun RegisterScreen(
             modifier = Modifier
                 .size(90.dp)
                 .clip(CircleShape)
-                .border(2.dp, Color(0xFF2E7D32), CircleShape)
-                .background(Color(0xFFE8F5E9))
+                .border(2.dp, VerdePrincipal, CircleShape)
+                .background(VerdeSuave)
                 .clickable { cameraLauncher.launch(null) },
             contentAlignment = Alignment.Center
         ) {
@@ -117,10 +119,10 @@ fun RegisterScreen(
                     Icon(
                         imageVector = Icons.Default.CameraAlt,
                         contentDescription = "Tomar foto",
-                        tint = Color(0xFF2E7D32),
+                        tint = VerdePrincipal,
                         modifier = Modifier.size(32.dp)
                     )
-                    Text("Foto", fontSize = 10.sp, color = Color(0xFF2E7D32))
+                    Text("Foto", fontSize = 10.sp, color = VerdePrincipal)
                 }
             }
         }
@@ -217,7 +219,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32))
+            colors = ButtonDefaults.buttonColors(containerColor = VerdePrincipal)
         ) {
             Text("Registrarse", fontSize = 16.sp)
         }

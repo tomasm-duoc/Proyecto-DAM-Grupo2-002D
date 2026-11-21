@@ -13,8 +13,11 @@ val Pink40 = Color(0xFF7D5260)
 // Paleta de color de la App
 
 val VerdeOscuro = Color(0xFF1B4D3E)
+val VerdeOscuro2 = Color(0xFF113F27)
 val VerdePrincipal = Color(0xFF2E7D32)
 val VerdeClaro = Color(0xFF43A047)
 val VerdeSuave = Color(0xFFE8F5E9)
 val VerdeMentaTexto = Color(0xFFC8E6C9)
 val CremaFondo = Color(0xFFF9FBE7)
+val AmarilloDorado = Color(0xFFFFB300)
+val GrisClaro = Color(0xFFF1F1F1)

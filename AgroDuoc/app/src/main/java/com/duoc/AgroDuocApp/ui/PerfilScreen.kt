@@ -31,6 +31,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.duoc.AgroDuocApp.model.User
 import com.duoc.AgroDuocApp.repository.UserRepository
+import com.duoc.AgroDuocApp.ui.theme.AmarilloDorado
+import com.duoc.AgroDuocApp.ui.theme.CremaFondo
+import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
+import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
+import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
+import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 
 @Composable
 fun PerfilScreen(
@@ -56,7 +62,7 @@ fun PerfilScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF9FBE7))
+            .background(CremaFondo)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -68,7 +74,7 @@ fun PerfilScreen(
                 .fillMaxWidth()
                 .background(
                     Brush.horizontalGradient(
-                        listOf(Color(0xFF1B4D3E), Color(0xFF2E7D32), Color(0xFF43A047))
+                        listOf(VerdeOscuro, VerdePrincipal, VerdeClaro)
                     )
                 )
                 .padding(horizontal = 24.dp, vertical = 20.dp)
@@ -120,7 +126,7 @@ fun PerfilScreen(
                             .size(120.dp)
                             .clip(CircleShape)
                             .background(Color.White)
-                            .border(2.5.dp, Color(0xFF1B4D3E), CircleShape),
+                            .border(2.5.dp, VerdeOscuro, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         val tieneFoto = !usuario?.fotoPerfilUri.isNullOrBlank()
@@ -128,7 +134,7 @@ fun PerfilScreen(
                             imageVector = Icons.Default.Person,
                             contentDescription = "Foto de perfil",
                             modifier = Modifier.size(80.dp),
-                            tint = if (tieneFoto) Color(0xFF2E7D32) else Color(0xFF1B4D3E)
+                            tint = if (tieneFoto) VerdePrincipal else VerdeOscuro
                         )
                     }
 
@@ -138,15 +144,15 @@ fun PerfilScreen(
                             .size(38.dp)
                             .align(Alignment.BottomEnd)
                             .clip(CircleShape)
-                            .background(Color(0xFFE8F5E9))
-                            .border(2.dp, Color(0xFF1B4D3E), CircleShape)
+                            .background(VerdeSuave)
+                            .border(2.dp, VerdeOscuro, CircleShape)
                             .clickable { onCambiarFotoClick() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Cambiar foto",
-                            tint = Color(0xFF1B4D3E),
+                            tint = VerdeOscuro,
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -164,7 +170,7 @@ fun PerfilScreen(
                     .height(300.dp),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = Color(0xFF2E7D32))
+                CircularProgressIndicator(color = VerdePrincipal)
             }
         } else {
             Column(
@@ -180,7 +186,7 @@ fun PerfilScreen(
                     text = "Datos",
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1B4D3E), // Verde oscuro consistente con HomeScreen
+                    color = VerdeOscuro, // Verde oscuro consistente con HomeScreen
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -205,7 +211,7 @@ fun PerfilScreen(
                     text = "Clasificación: $clasificacion",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF1B4D3E),
+                    color = VerdeOscuro,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
@@ -221,13 +227,13 @@ fun PerfilScreen(
                             modifier = Modifier
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(if (estaLlena) Color(0xFF2E7D32) else Color.LightGray),
+                                .background(if (estaLlena) VerdePrincipal else Color.LightGray),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = if (estaLlena) Icons.Default.Star else Icons.Outlined.StarOutline,
                                 contentDescription = "Estrella $i",
-                                tint = if (estaLlena) Color(0xFFFFB300) else Color.White,
+                                tint = if (estaLlena) AmarilloDorado else Color.White,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -253,7 +259,7 @@ fun CampoDatoPerfil(
             .fillMaxWidth()
             .padding(vertical = 5.dp),
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.5.dp, Color(0xFF2E7D32)), // Borde verde agrícola
+        border = BorderStroke(1.5.dp, VerdePrincipal), // Borde verde agrícola
         color = Color.White
     ) {
         Row(
@@ -289,7 +295,7 @@ fun CampoDatoPerfil(
                     Icon(
                         imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                         contentDescription = if (passwordVisible) "Ocultar contraseña" else "Ver contraseña",
-                        tint = Color(0xFF1B4D3E)
+                        tint = VerdeOscuro
                     )
                 }
             }

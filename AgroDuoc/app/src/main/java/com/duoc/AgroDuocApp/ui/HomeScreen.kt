@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.AgroDuocApp.model.Solicitud
 import com.duoc.AgroDuocApp.repository.UserRepository
+import com.duoc.AgroDuocApp.ui.theme.CremaFondo
+import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
+import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
+import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
 
 @Composable
@@ -56,7 +60,7 @@ fun HomeScreen(
                         onLogout()
                     }
                 ) {
-                    Text("Cerrar Sesión", color = Color(0xFF2E7D32))
+                    Text("Cerrar Sesión", color = VerdePrincipal)
                 }
             },
             dismissButton = {
@@ -85,7 +89,7 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF9FBE7)) // Fondo suave tipo campo
+                .background(CremaFondo) // Fondo suave tipo campo
         ) {
             // Header Superior Alegre y Agrícola
             Box(
@@ -93,7 +97,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .background(
                         Brush.horizontalGradient(
-                            listOf(Color(0xFF1B4D3E), Color(0xFF2E7D32), Color(0xFF43A047))
+                            listOf(VerdeOscuro, VerdePrincipal, VerdeClaro)
                         )
                     )
                     .padding(24.dp)
@@ -115,7 +119,7 @@ fun HomeScreen(
                             Text(
                                 text = "Mercado y Servicios Agrícolas",
                                 fontSize = 14.sp,
-                                color = Color(0xFFC8E6C9)
+                                color = CremaFondo
                             )
                         }
                     }
@@ -129,7 +133,7 @@ fun HomeScreen(
                 text = "📋 Solicitudes",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1B4D3E),
+                color = VerdeOscuro,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
@@ -158,7 +162,7 @@ fun CrearSolicitud(
         onClick = { onNavigateToCrearSolicitud() },
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF2E7D32),
+            containerColor = VerdePrincipal,
             contentColor = Color.White
         )
     ) {
@@ -189,13 +193,13 @@ fun SolicitudItem(solicitud: Solicitud) {
                 text = "${solicitud.tipoProducto} · ${solicitud.tipoCultivo}",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1B4D3E)
+                color = VerdeOscuro
             )
             Text(
                 text = "Superficie: ${solicitud.superficie}",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF2E7D32)
+                color = VerdePrincipal
             )
             Text(
                 text = "Ubicación: ${solicitud.ubicacion} · ${solicitud.aplicacion}",
@@ -221,7 +225,7 @@ fun BottomNavigationBar(
 ) {
     NavigationBar(
         containerColor = Color.White,
-        contentColor = Color(0xFF2E7D32)
+        contentColor = VerdePrincipal
     ) {
         NavigationBarItem(
             selected = true,
@@ -229,8 +233,8 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF2E7D32),
-                indicatorColor = Color(0xFFE8F5E9)
+                selectedIconColor = VerdePrincipal,
+                indicatorColor = CremaFondo
             )
         )
         NavigationBarItem(
@@ -238,22 +242,21 @@ fun BottomNavigationBar(
             onClick = onNavigateToPerfil,
             icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
             label = { Text("Perfil") },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32))
+            colors = NavigationBarItemDefaults.colors(selectedIconColor = VerdePrincipal)
         )
         NavigationBarItem(
             selected = false,
             onClick = onNavigateToInfo,
             icon = { Icon(Icons.Default.Info, contentDescription = "Info") },
             label = { Text("Info") },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32)
-            )
+            colors = NavigationBarItemDefaults.colors(selectedIconColor = VerdePrincipal)
         )
         NavigationBarItem(
             selected = false,
             onClick = onLogoutClick,
             icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión") },
             label = { Text("Salir") },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = Color(0xFF2E7D32))
+            colors = NavigationBarItemDefaults.colors(selectedIconColor = VerdePrincipal)
         )
     }
 }

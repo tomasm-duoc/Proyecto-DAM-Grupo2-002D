@@ -16,6 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.duoc.AgroDuocApp.ui.theme.VerdeMentaTexto
+import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
+import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro2
+import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 
 @Composable
 fun LandingScreen(
@@ -26,9 +30,9 @@ fun LandingScreen(
     // Gradiente agrícola de respaldo (fallback) si no se detecta imagen
     val agriculturalGradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF113F27), // Verde oscuro campo
-            Color(0xFF1B4D3E), // Verde bosque
-            Color(0xFF2E7D32)  // Verde agrícola
+            VerdeOscuro2, // Verde oscuro campo
+            VerdeOscuro, // Verde bosque
+            VerdePrincipal // Verde agrícola
         )
     )
 
@@ -80,7 +84,7 @@ fun LandingScreen(
             Text(
                 text = "Conectando la producción agrícola\ncon servicios de aplicación",
                 fontSize = 15.sp,
-                color = Color(0xFFC8E6C9), // Verde claro suave
+                color = VerdeMentaTexto, // Verde claro suave
                 textAlign = TextAlign.Center
             )
 
@@ -94,7 +98,7 @@ fun LandingScreen(
                     .height(52.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.White,
-                    contentColor = Color(0xFF1B4D3E)
+                    contentColor = VerdeOscuro
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
             ) {
