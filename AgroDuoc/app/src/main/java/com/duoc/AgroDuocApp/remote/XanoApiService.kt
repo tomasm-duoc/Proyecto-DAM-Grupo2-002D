@@ -5,8 +5,10 @@ import com.duoc.AgroDuocApp.model.OfertaDto
 import com.duoc.AgroDuocApp.model.SolicitudDto
 import com.duoc.AgroDuocApp.model.UsuarioDto
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface XanoApiService {
     // 1. Obtener lista de usuarios
@@ -36,4 +38,8 @@ interface XanoApiService {
     // 7. Registro de usuario con JSON limpio
     @POST("auth/signup")
     suspend fun signup(@Body body: Map<String, String>): AuthResponse
+
+    // Endpoint de eliminación de cuenta
+    @DELETE("usuario/{usuario_id}")
+    suspend fun eliminarUsuario(@Path("usuario_id") id: Int)
 }

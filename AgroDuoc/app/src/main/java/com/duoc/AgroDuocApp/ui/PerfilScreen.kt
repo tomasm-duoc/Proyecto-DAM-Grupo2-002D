@@ -5,17 +5,14 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,75 +20,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.duoc.AgroDuocApp.model.User
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.AgroDuocApp.repository.UserRepository
 import com.duoc.AgroDuocApp.ui.theme.CremaFondo
 import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.utils.base64ToImageBitmap
+import com.duoc.AgroDuocApp.viewmodel.PerfilViewModel
 
 @Composable
 fun PerfilScreen(
     onLogout: () -> Unit = {},
     onNavigateToHome: () -> Unit = {},
     onNavigateToInfo: () -> Unit = {},
-    onCambiarFotoClick: () -> Unit = {}
+    viewModel: PerfilViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val userRepository = remember { UserRepository(context) }
-
-    var usuario by remember { mutableStateOf<User?>(null) }
-    var cargando by remember { mutableStateOf(true) }
     var showLogoutDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        val prefs = context.getSharedPreferences("TecMundoPrefs", android.content.Context.MODE_PRIVATE)
-        // Lee el email guardado por LoginViewModel (o el rut si existiera)
-        val identificadorActivo = prefs.getString("logged_user_email", null)
-            ?: userRepository.obtenerSesionActiva()
-        val passGuardada = prefs.getString("logged_user_password", "") ?: ""
-
-        if (!identificadorActivo.isNullOrBlank()) {
-            try {
-                val apiService = com.duoc.AgroDuocApp.remote.RetrofitClient.getInstance(context)
-                val usuariosXano = apiService.getUsuarios()
-
-                val encontrado = usuariosXano.find {
-                    it.email.equals(identificadorActivo.trim(), ignoreCase = true) ||
-                            it.rut.equals(identificadorActivo.trim(), ignoreCase = true)
-                }
-
-                if (encontrado != null) {
-                    usuario = User(
-                        rut = encontrado.rut,
-                        nombre = encontrado.nombre,
-                        apellido = encontrado.apellido,
-                        email = encontrado.email,
-                        telefono = encontrado.telefono,
-                        rol = encontrado.rol,
-                        password = passGuardada,
-                        fotoPerfilUri = encontrado.foto_perfil
-                    )
-                } else {
-                    usuario = userRepository.getUserByRut(identificadorActivo)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                usuario = userRepository.getUserByRut(identificadorActivo)
-            }
-        }
-        cargando = false
-    }
-
-    // Diálogo de confirmación para el botón "Salir" de la barra inferior
+    // Diálogo de confirmación para cerrar sesión
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
@@ -111,6 +67,38 @@ fun PerfilScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Diálogo de confirmación para eliminar cuenta
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Eliminar Cuenta") },
+            text = { Text("¿Estás seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.eliminarCuenta(
+                            onSuccess = {
+                                Toast.makeText(context, "Cuenta eliminada correctamente", Toast.LENGTH_SHORT).show()
+                                onLogout()
+                            },
+                            onError = { error ->
+                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                            }
+                        )
+                    }
+                ) {
+                    Text("Eliminar", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
                     Text("Cancelar")
                 }
             }
@@ -138,7 +126,6 @@ fun PerfilScreen(
         ) {
 
             // 1. CABECERA VERDE CON FOTO DE PERFIL
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -147,69 +134,43 @@ fun PerfilScreen(
                             listOf(VerdeOscuro, VerdePrincipal, VerdeClaro)
                         )
                     )
-                    .padding(vertical = 28.dp),
+                    .padding(vertical = 32.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
-                    modifier = Modifier.size(130.dp),
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(Color.White)
+                        .border(2.dp, VerdeOscuro, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape)
-                            .background(Color.White)
-                            .border(2.5.dp, VerdeOscuro, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        val bitmapImage = remember(usuario?.fotoPerfilUri) {
-                            base64ToImageBitmap(usuario?.fotoPerfilUri)
-                        }
-
-                        if (bitmapImage != null) {
-                            Image(
-                                bitmap = bitmapImage,
-                                contentDescription = "Foto de perfil",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Foto de perfil",
-                                modifier = Modifier.size(80.dp),
-                                tint = VerdeOscuro
-                            )
-                        }
+                    val bitmapImage = remember(viewModel.usuarioDto?.foto_perfil) {
+                        base64ToImageBitmap(viewModel.usuarioDto?.foto_perfil)
                     }
 
-                    // Botón "+"
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .align(Alignment.BottomEnd)
-                            .clip(CircleShape)
-                            .background(CremaFondo)
-                            .border(2.dp, VerdeOscuro, CircleShape)
-                            .clickable { onCambiarFotoClick() },
-                        contentAlignment = Alignment.Center
-                    ) {
+                    if (bitmapImage != null) {
+                        Image(
+                            bitmap = bitmapImage,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
                         Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Cambiar foto",
-                            tint = VerdeOscuro,
-                            modifier = Modifier.size(24.dp)
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Foto de perfil",
+                            modifier = Modifier.size(80.dp),
+                            tint = VerdeOscuro
                         )
                     }
                 }
             }
 
-
             // 2. SECCIÓN DE DATOS DEL USUARIO
-
-            if (cargando) {
+            if (viewModel.cargando) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -226,24 +187,32 @@ fun PerfilScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "Datos",
+                        text = "Datos de Perfil",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = VerdeOscuro,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
-                    CampoDatoPerfil(etiqueta = "RUT", valor = usuario?.rut ?: "")
-                    CampoDatoPerfil(etiqueta = "Nombre", valor = usuario?.nombre ?: "")
-                    CampoDatoPerfil(etiqueta = "Apellido", valor = usuario?.apellido ?: "")
-                    CampoDatoPerfil(etiqueta = "Email", valor = usuario?.email ?: "")
-                    CampoDatoPerfil(etiqueta = "Teléfono", valor = usuario?.telefono ?: "")
-                    CampoDatoPerfil(etiqueta = "Rol", valor = usuario?.rol ?: "")
-                    CampoDatoPerfil(
-                        etiqueta = "Contraseña",
-                        valor = usuario?.password ?: "",
-                        esPassword = true
-                    )
+                    CampoDatoPerfil(etiqueta = "RUT", valor = viewModel.usuarioDto?.rut ?: "")
+                    CampoDatoPerfil(etiqueta = "Nombre", valor = viewModel.usuarioDto?.nombre ?: "")
+                    CampoDatoPerfil(etiqueta = "Apellido", valor = viewModel.usuarioDto?.apellido ?: "")
+                    CampoDatoPerfil(etiqueta = "Email", valor = viewModel.usuarioDto?.email ?: "")
+                    CampoDatoPerfil(etiqueta = "Teléfono", valor = viewModel.usuarioDto?.telefono ?: "")
+                    CampoDatoPerfil(etiqueta = "Rol", valor = viewModel.usuarioDto?.rol ?: "")
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Botón Eliminar Cuenta
+                    Button(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar cuenta", tint = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Eliminar cuenta permanentemente", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
 
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -255,56 +224,27 @@ fun PerfilScreen(
 @Composable
 fun CampoDatoPerfil(
     etiqueta: String,
-    valor: String,
-    esPassword: Boolean = false
+    valor: String
 ) {
-    var passwordVisible by remember { mutableStateOf(false) }
-
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 5.dp),
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.5.dp, VerdePrincipal),
+        border = BorderStroke(1.5.dp, Color.LightGray),
         color = Color.White
     ) {
         Row(
             modifier = Modifier
                 .padding(horizontal = 12.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            val valorFormateado = when {
-                valor.isBlank() -> ""
-                esPassword && !passwordVisible -> "•".repeat(valor.length)
-                else -> valor
-            }
-
-            val textoAMostrar = if (valorFormateado.isNotBlank()) {
-                "$etiqueta: $valorFormateado"
-            } else {
-                etiqueta
-            }
-
             Text(
-                text = textoAMostrar,
+                text = "$etiqueta: $valor",
                 fontSize = 16.sp,
                 color = Color.Black,
                 modifier = Modifier.weight(1f)
             )
-
-            if (esPassword && valor.isNotBlank()) {
-                IconButton(
-                    onClick = { passwordVisible = !passwordVisible },
-                    modifier = Modifier.size(24.dp)
-                ) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                        contentDescription = if (passwordVisible) "Ocultar contraseña" else "Ver contraseña",
-                        tint = VerdeOscuro
-                    )
-                }
-            }
         }
     }
 }
@@ -315,7 +255,6 @@ fun PerfilScreenPreview() {
     PerfilScreen(
         onLogout = {},
         onNavigateToHome = {},
-        onNavigateToInfo = {},
-        onCambiarFotoClick = {}
+        onNavigateToInfo = {}
     )
 }
