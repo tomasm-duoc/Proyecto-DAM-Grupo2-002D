@@ -3,15 +3,14 @@ package com.duoc.AgroDuocApp.viewmodel
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
-import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.duoc.AgroDuocApp.remote.RetrofitClient
+import com.duoc.AgroDuocApp.utils.bitmapToBase64
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
     var selectedRole by mutableStateOf("Productor") // "productor" o "aplicador"
@@ -24,14 +23,6 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     var fotoPerfilUri by mutableStateOf<String?>(null)
     var capturedBitmap: Bitmap? = null // Almacena el bitmap de la cámara
     var errorMessage by mutableStateOf<String?>(null)
-
-    // Convierte un Bitmap a una cadena Base64
-    private fun bitmapToBase64(bitmap: Bitmap): String {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, byteArrayOutputStream)
-        val byteArray = byteArrayOutputStream.toByteArray()
-        return Base64.encodeToString(byteArray, Base64.DEFAULT)
-    }
 
     // Valida el formulario y realiza el registro contra la API de Xano enviando la foto en Base64
     fun validarYRegistrar(onSuccess: () -> Unit) {
@@ -68,7 +59,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
             try {
                 val api = RetrofitClient.getInstance(getApplication())
 
-                // Convertir la foto capturada a Base64 (si existe)
+                // Convertir la foto capturada a Base64 usando la utilidad global ImageUtils
                 val base64Image = capturedBitmap?.let { bitmapToBase64(it) } ?: ""
 
                 val body = mapOf(

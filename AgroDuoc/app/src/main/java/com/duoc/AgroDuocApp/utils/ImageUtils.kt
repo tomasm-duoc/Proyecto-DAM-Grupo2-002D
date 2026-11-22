@@ -1,9 +1,11 @@
 package com.duoc.AgroDuocApp.utils
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import java.io.ByteArrayOutputStream
 
 // Función de utilidad global para decodificar cadenas Base64 en ImageBitmap de Compose
 fun base64ToImageBitmap(base64Str: String?): ImageBitmap? {
@@ -17,4 +19,12 @@ fun base64ToImageBitmap(base64Str: String?): ImageBitmap? {
         e.printStackTrace()
         null
     }
+}
+
+// Función de utilidad global para convertir Bitmap a cadenas Base64
+fun bitmapToBase64(bitmap: Bitmap, quality: Int = 70): String {
+    val byteArrayOutputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, quality, byteArrayOutputStream)
+    val byteArray = byteArrayOutputStream.toByteArray()
+    return Base64.encodeToString(byteArray, Base64.DEFAULT)
 }
