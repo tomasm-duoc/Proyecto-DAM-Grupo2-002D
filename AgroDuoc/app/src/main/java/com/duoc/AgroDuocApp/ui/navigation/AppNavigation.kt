@@ -7,12 +7,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.duoc.AgroDuocApp.R
+import com.duoc.AgroDuocApp.ui.CrearOfertaScreen
 import com.duoc.AgroDuocApp.ui.CrearSolicitudScreen
 import com.duoc.AgroDuocApp.ui.DetalleSolicitudProductorScreen
 import com.duoc.AgroDuocApp.ui.FaqsScreen
 import com.duoc.AgroDuocApp.ui.HomeScreen
 import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
+import com.duoc.AgroDuocApp.ui.OfertasScreen
 import com.duoc.AgroDuocApp.ui.PerfilScreen
 import com.duoc.AgroDuocApp.ui.RegisterScreen
 import com.duoc.AgroDuocApp.ui.SolicitudesScreen
@@ -78,7 +80,51 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                     }
                 },
                 onIrAOfertas = {
-                    // Aquí conectaremos la pantalla de Ofertas del Aplicador
+                    navController.navigate(Screen.Ofertas.route){
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Ofertas.route) {
+            OfertasScreen(
+                onLogout = {
+                    navController.navigate(Screen.Landing.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToPerfil = {
+                    navController.navigate(Screen.Perfil.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToInfo = {
+                    navController.navigate(Screen.Faqs.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToCrearOferta = {
+                    navController.navigate(Screen.CrearOferta.route) { // <--- Irá a la pantalla para crear oferta
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(Screen.CrearOferta.route) {
+            CrearOfertaScreen(
+                onBackClick = {
+                    navController.popBackStack() // <--- Vuelve atrás sin duplicar pantallas
+                },
+                onOfertaCreada = {
+                    navController.popBackStack() // <--- Regresa a OfertasScreen y recarga la lista desde Xano
                 }
             )
         }
