@@ -1,4 +1,4 @@
-package com.duoc.AgroDuocApp.util
+package com.duoc.AgroDuocApp.utils
 
 import android.Manifest
 import android.app.NotificationChannel

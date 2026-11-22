@@ -45,7 +45,7 @@ import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
 import androidx.compose.ui.platform.LocalContext
-import com.duoc.AgroDuocApp.util.NotificationHelper
+import com.duoc.AgroDuocApp.utils.NotificationHelper
 
 @Composable
 fun CrearSolicitudScreen(
