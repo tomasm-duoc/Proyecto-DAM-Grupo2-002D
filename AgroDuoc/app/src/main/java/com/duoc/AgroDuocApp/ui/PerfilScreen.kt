@@ -2,6 +2,7 @@ package com.duoc.AgroDuocApp.ui
 
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,6 +36,7 @@ import com.duoc.AgroDuocApp.ui.theme.CremaFondo
 import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
+import com.duoc.AgroDuocApp.utils.base64ToImageBitmap
 
 @Composable
 fun PerfilScreen(
@@ -158,13 +162,27 @@ fun PerfilScreen(
                             .border(2.5.dp, VerdeOscuro, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        val tieneFoto = !usuario?.fotoPerfilUri.isNullOrBlank()
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Foto de perfil",
-                            modifier = Modifier.size(80.dp),
-                            tint = if (tieneFoto) VerdePrincipal else VerdeOscuro
-                        )
+                        val bitmapImage = remember(usuario?.fotoPerfilUri) {
+                            base64ToImageBitmap(usuario?.fotoPerfilUri)
+                        }
+
+                        if (bitmapImage != null) {
+                            Image(
+                                bitmap = bitmapImage,
+                                contentDescription = "Foto de perfil",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Foto de perfil",
+                                modifier = Modifier.size(80.dp),
+                                tint = VerdeOscuro
+                            )
+                        }
                     }
 
                     // Botón "+"
@@ -294,5 +312,10 @@ fun CampoDatoPerfil(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PerfilScreenPreview() {
-    PerfilScreen()
+    PerfilScreen(
+        onLogout = {},
+        onNavigateToHome = {},
+        onNavigateToInfo = {},
+        onCambiarFotoClick = {}
+    )
 }
