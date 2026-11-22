@@ -44,17 +44,24 @@ import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
+import androidx.compose.ui.platform.LocalContext
+import com.duoc.AgroDuocApp.util.NotificationHelper
 
 @Composable
 fun CrearSolicitudScreen(
     solicitudViewModel: SolicitudViewModel = viewModel(),
     onSolicitudGuardada: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    // Cuando la funcion de guardarSolicitud() (de SolicitudViewModel) termine, este se activa
     LaunchedEffect(solicitudViewModel.guardadoExitoso) {
-        if(solicitudViewModel.guardadoExitoso){
+        if (solicitudViewModel.guardadoExitoso) {
+            NotificationHelper.mostrarNotificacion(
+                context = context,
+                titulo = "🌱 Nueva Solicitud Publicada",
+                mensaje = "Servicio de ${solicitudViewModel.tipoProducto} en ${solicitudViewModel.tipoCultivo} (${solicitudViewModel.superficie})."
+            )
             solicitudViewModel.quitarEstadoGuardado()
             onSolicitudGuardada()
         }

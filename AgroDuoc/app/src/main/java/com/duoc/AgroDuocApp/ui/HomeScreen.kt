@@ -31,6 +31,12 @@ import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 @Composable
 fun HomeScreen(
@@ -43,6 +49,21 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permiso = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+            if (permiso != PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     // Observa las solicitudes guardadas en Room desde el ViewModel
     val solicitudes by solicitudViewModel.solicitudes.collectAsState()
