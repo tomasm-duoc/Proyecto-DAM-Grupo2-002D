@@ -35,7 +35,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                 errorMessage = "Ingresa un RUT valido (ej: 12345678-9)"
                 false
             }
-            email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+            email.isBlank() || !Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$").matches(email) -> {
                 errorMessage = "Ingresa un correo valido"
                 false
             }
