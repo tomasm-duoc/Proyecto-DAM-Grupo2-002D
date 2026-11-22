@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.AgroDuocApp.model.OfertaDto
-import com.duoc.AgroDuocApp.model.Solicitud
+import com.duoc.AgroDuocApp.model.SolicitudDto
 import com.duoc.AgroDuocApp.ui.theme.CremaFondo
 import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeMentaTexto
@@ -43,10 +43,21 @@ fun DetalleSolicitudProductorScreen(
     solicitudViewModel: SolicitudViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val solicitudes by solicitudViewModel.solicitudes.collectAsState()
-    val solicitud = solicitudes.find { it.id == solicitudId }
+    val solicitudesXano by solicitudViewModel.solicitudesProductorXano.collectAsState()
+    val cargandoXano by solicitudViewModel.cargandoXano.collectAsState()
 
-    var estadoSolicitud by remember { mutableStateOf("Pendiente") }
+    // Si la lista desde Xano aún está vacía, dispara la carga del productor
+    LaunchedEffect(solicitudId) {
+        if (solicitudesXano.isEmpty()) {
+            solicitudViewModel.cargarDatosProductor()
+        }
+    }
+
+    val solicitud = solicitudesXano.find { it.id == solicitudId }
+
+    var estadoSolicitud by remember(solicitud?.estado) {
+        mutableStateOf(solicitud?.estado ?: "Pendiente")
+    }
     var ofertaAceptadaId by remember { mutableStateOf<Int?>(null) }
 
     // Creacion de Datos ficticios usando el modelo OfertaDto
@@ -135,22 +146,48 @@ fun DetalleSolicitudProductorScreen(
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                if (solicitud != null) {
-                    TarjetaResumenSolicitud(
-                        solicitud = solicitud,
-                        estado = estadoSolicitud
-                    )
-                } else {
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Cargando detalle de la solicitud...",
-                            modifier = Modifier.padding(16.dp),
-                            color = Color.DarkGray
+                when {
+                    solicitud != null -> {
+                        TarjetaResumenSolicitud(
+                            solicitud = solicitud,
+                            estado = estadoSolicitud
                         )
+                    }
+                    cargandoXano -> {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                CircularProgressIndicator(
+                                    color = VerdePrincipal,
+                                    modifier = Modifier.size(22.dp),
+                                    strokeWidth = 2.5.dp
+                                )
+                                Text(
+                                    text = "Cargando detalle de la solicitud...",
+                                    color = Color.DarkGray
+                                )
+                            }
+                        }
+                    }
+                    else -> {
+                        Card(
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(16.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "No se encontró la solicitud #$solicitudId.",
+                                modifier = Modifier.padding(16.dp),
+                                color = Color.DarkGray
+                            )
+                        }
                     }
                 }
             }
@@ -197,7 +234,7 @@ fun DetalleSolicitudProductorScreen(
 
 @Composable
 private fun TarjetaResumenSolicitud(
-    solicitud: Solicitud,
+    solicitud: SolicitudDto,
     estado: String
 ) {
     // Es la tarjeta de la solicitud
@@ -234,35 +271,37 @@ private fun TarjetaResumenSolicitud(
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Text(
-                    text = "Producto: ${solicitud.tipoProducto}",
+                    text = "Producto: ${solicitud.tipo_producto}",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = VerdeOscuro
                 )
                 Text(
-                    text = "Cultivo: ${solicitud.tipoCultivo}",
+                    text = "Superficie: ${solicitud.superficie_ha} ha",
                     fontSize = 13.sp,
                     color = Color.DarkGray
                 )
                 Text(
-                    text = "Superficie: ${solicitud.superficie}",
+                    text = "Aplicación: ${solicitud.tipo_aplicacion}",
                     fontSize = 13.sp,
                     color = Color.DarkGray
                 )
-                Text(
-                    text = "Aplicación: ${solicitud.aplicacion}",
-                    fontSize = 13.sp,
-                    color = Color.DarkGray
-                )
+                if (!solicitud.comentarios.isNullOrBlank()) {
+                    Text(
+                        text = "Detalles: ${solicitud.comentarios}",
+                        fontSize = 13.sp,
+                        color = Color.DarkGray
+                    )
+                }
             }
 
             Surface(
-                color = if (estado == "Aceptada") VerdeSuave else Color(0xFFFFF8E1),
+                color = if (estado.equals("Aceptada", ignoreCase = true)) VerdeSuave else Color(0xFFFFF8E1),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
                     text = estado,
-                    color = if (estado == "Aceptada") VerdePrincipal else Color(0xFFF57F17),
+                    color = if (estado.equals("Aceptada", ignoreCase = true)) VerdePrincipal else Color(0xFFF57F17),
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)

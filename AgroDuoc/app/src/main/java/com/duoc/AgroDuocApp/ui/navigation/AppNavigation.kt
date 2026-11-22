@@ -15,6 +15,7 @@ import com.duoc.AgroDuocApp.ui.LandingScreen
 import com.duoc.AgroDuocApp.ui.LoginScreen
 import com.duoc.AgroDuocApp.ui.PerfilScreen
 import com.duoc.AgroDuocApp.ui.RegisterScreen
+import com.duoc.AgroDuocApp.ui.SolicitudesScreen
 
 @Composable
 fun AppNavigation(startDestination: String = Screen.Landing.route) {
@@ -63,11 +64,45 @@ fun AppNavigation(startDestination: String = Screen.Landing.route) {
                 },
                 onNavigateToPerfil = {
                     navController.navigate(Screen.Perfil.route) {
-                        launchSingleTop = true // <--- Evita duplicar PerfilScreen
+                        launchSingleTop = true
                     }
                 },
                 onNavigateToInfo = {
-                    navController.navigate(Screen.Faqs.route){
+                    navController.navigate(Screen.Faqs.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onIrASolicitudes = {
+                    navController.navigate(Screen.Solicitudes.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onIrAOfertas = {
+                    // Aquí conectaremos la pantalla de Ofertas del Aplicador
+                }
+            )
+        }
+
+        composable(Screen.Solicitudes.route) {
+            SolicitudesScreen(
+                onLogout = {
+                    navController.navigate(Screen.Landing.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                },
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToPerfil = {
+                    navController.navigate(Screen.Perfil.route) {
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToInfo = {
+                    navController.navigate(Screen.Faqs.route) {
                         launchSingleTop = true
                     }
                 },

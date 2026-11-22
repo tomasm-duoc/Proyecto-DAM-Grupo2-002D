@@ -1,81 +1,59 @@
 package com.duoc.AgroDuocApp.ui
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.LocalOffer
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.duoc.AgroDuocApp.model.Solicitud
-import com.duoc.AgroDuocApp.model.SolicitudDto
 import com.duoc.AgroDuocApp.repository.UserRepository
 import com.duoc.AgroDuocApp.ui.theme.CremaFondo
-import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
-import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
+import com.duoc.AgroDuocApp.ui.theme.VerdeSuave
 
 @Composable
 fun HomeScreen(
-    onLogout: () -> Unit,
-    onNavigateToPerfil: () -> Unit,
-    onNavigateToInfo: () -> Unit,
-    onNavigateToCrearSolicitud: () -> Unit,
-    onSolicitudClick: (Int) -> Unit = {},
-    solicitudViewModel: SolicitudViewModel = viewModel()
+    nombreUsuario: String? = null,
+    onLogout: () -> Unit = {},
+    onNavigateToPerfil: () -> Unit = {},
+    onNavigateToInfo: () -> Unit = {},
+    onIrASolicitudes: () -> Unit = {},
+    onIrAOfertas: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { }
-
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val permiso = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-            if (permiso != PackageManager.PERMISSION_GRANTED) {
-                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
-
-    val usuarioActual by solicitudViewModel.usuarioActual.collectAsState()
-    val solicitudesXano by solicitudViewModel.solicitudesProductorXano.collectAsState()
-    val cargandoXano by solicitudViewModel.cargandoXano.collectAsState()
-
-    LaunchedEffect(Unit) {
-        solicitudViewModel.cargarDatosProductor()
-    }
-
-    // Observa las solicitudes guardadas en Room desde el ViewModel
-    val solicitudes by solicitudViewModel.solicitudes.collectAsState()
 
     if (showLogoutDialog) {
         AlertDialog(
@@ -104,8 +82,36 @@ fun HomeScreen(
     }
 
     Scaffold(
-
-        // 1. Dentro de HomeScreen, en el Scaffold
+        topBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(VerdePrincipal, VerdeOscuro)
+                        )
+                    )
+                    .padding(horizontal = 16.dp, vertical = 20.dp)
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = "🌱 TecMundo Connect",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (!nombreUsuario.isNullOrBlank()) {
+                            "Hola, $nombreUsuario · Mercado y Servicios Agrícolas"
+                        } else {
+                            "Mercado y Servicios Agrícolas"
+                        },
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        },
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = "home",
@@ -114,288 +120,97 @@ fun HomeScreen(
                 onNavigateToInfo = onNavigateToInfo,
                 onLogoutClick = { showLogoutDialog = true }
             )
-        },
-        floatingActionButton = {
-            CrearSolicitud(
-                onNavigateToCrearSolicitud = onNavigateToCrearSolicitud
-            )
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(CremaFondo)
                 .padding(paddingValues)
-                .background(CremaFondo) // Fondo suave tipo campo
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // Header Superior Alegre y Agrícola
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(VerdeOscuro, VerdePrincipal, VerdeClaro)
-                        )
-                    )
-                    .padding(24.dp)
-            ) {
-                Column {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column {
-                            Text(
-                                text = "🌱 TecMundo Connect",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Mercado y Servicios Agrícolas",
-                                fontSize = 14.sp,
-                                color = CremaFondo
-                            )
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Título de la sección
             Text(
-                text = "📋 Solicitudes",
+                text = "¿Qué deseas revisar hoy?",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = VerdeOscuro,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-
-            // Lista Deslizable de Solicitudes filtradas del Productor desde Xano
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                if (cargandoXano) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = VerdePrincipal)
-                        }
-                    }
-                } else if (solicitudesXano.isEmpty()) {
-                    item {
-                        Text(
-                            text = if (usuarioActual != null) {
-                                "No tienes solicitudes registradas aún."
-                            } else {
-                                "Cargando solicitudes de tu sesión..."
-                            },
-                            color = Color.DarkGray,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                } else {
-                    items(solicitudesXano, key = { it.id }) { solicitudDto ->
-                        SolicitudDtoItem(
-                            solicitud = solicitudDto,
-                            onClick = { onSolicitudClick(solicitudDto.id) }
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CrearSolicitud(
-    onNavigateToCrearSolicitud: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Button(
-        onClick = { onNavigateToCrearSolicitud() },
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = VerdePrincipal,
-            contentColor = Color.White
-        )
-    ) {
-        Icon(
-            imageVector = Icons.Default.Add,
-            contentDescription = "Crear Solicitud"
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(text = "Nueva Solicitud")
-    }
-}
-
-@Composable
-fun SolicitudItem(
-    solicitud: Solicitud,
-    onClick: () -> Unit = {}
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = "${solicitud.tipoProducto} · ${solicitud.tipoCultivo}",
-                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = VerdeOscuro
             )
-            Text(
-                text = "Superficie: ${solicitud.superficie}",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = VerdePrincipal
+
+            AccesoModuloCard(
+                titulo = "Solicitudes",
+                subtitulo = "Revisa o publica solicitudes de aplicación agrícola",
+                icono = Icons.Default.Assignment,
+                onClick = onIrASolicitudes
             )
-            Text(
-                text = "Ubicación: ${solicitud.ubicacion} · ${solicitud.aplicacion}",
-                fontSize = 13.sp,
-                color = Color.DarkGray
+
+            AccesoModuloCard(
+                titulo = "Ofertas",
+                subtitulo = "Consulta o envía ofertas para servicios disponibles",
+                icono = Icons.Default.LocalOffer,
+                onClick = onIrAOfertas
             )
-            if (solicitud.fechaDisponibilidad.isNotBlank()) {
-                Text(
-                    text = "Disponibilidad: ${solicitud.fechaDisponibilidad}",
-                    fontSize = 13.sp,
-                    color = Color.DarkGray
-                )
-            }
         }
     }
 }
 
 @Composable
-fun SolicitudDtoItem(
-    solicitud: SolicitudDto,
-    onClick: () -> Unit = {}
+private fun AccesoModuloCard(
+    titulo: String,
+    subtitulo: String,
+    icono: ImageVector,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(VerdeSuave, RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = solicitud.tipo_producto,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = VerdeOscuro,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = solicitud.estado,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = VerdePrincipal
+                Icon(
+                    imageVector = icono,
+                    contentDescription = titulo,
+                    tint = VerdePrincipal
                 )
             }
-            Text(
-                text = "Superficie: ${solicitud.superficie_ha} ha",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = VerdePrincipal
-            )
-            Text(
-                text = "Aplicación: ${solicitud.tipo_aplicacion}",
-                fontSize = 13.sp,
-                color = Color.DarkGray
-            )
-            if (!solicitud.comentarios.isNullOrBlank()) {
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
                 Text(
-                    text = "Comentarios: ${solicitud.comentarios}",
+                    text = titulo,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF1B2A1E)
+                )
+                Text(
+                    text = subtitulo,
                     fontSize = 13.sp,
                     color = Color.DarkGray
                 )
             }
-        }
-    }
-}
 
-// 2. Al final de HomeScreen.kt, reemplaza BottomNavigationBar por esto:
-@Composable
-fun BottomNavigationBar(
-    currentRoute: String = "home",
-    onNavigateToHome: () -> Unit = {},
-    onNavigateToPerfil: () -> Unit,
-    onNavigateToInfo: () -> Unit,
-    onLogoutClick: () -> Unit
-) {
-    NavigationBar(
-        containerColor = Color.White,
-        contentColor = VerdePrincipal
-    ) {
-        NavigationBarItem(
-            selected = currentRoute == "home",
-            onClick = onNavigateToHome,
-            icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
-            label = { Text("Inicio") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VerdePrincipal,
-                indicatorColor = CremaFondo
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = VerdePrincipal
             )
-        )
-        NavigationBarItem(
-            selected = currentRoute == "perfil",
-            onClick = onNavigateToPerfil,
-            icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
-            label = { Text("Perfil") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VerdePrincipal,
-                indicatorColor = CremaFondo
-            )
-        )
-        NavigationBarItem(
-            selected = currentRoute == "info",
-            onClick = onNavigateToInfo,
-            icon = { Icon(Icons.Default.Info, contentDescription = "Info") },
-            label = { Text("Info") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VerdePrincipal,
-                indicatorColor = CremaFondo
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onLogoutClick,
-            icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar Sesión") },
-            label = { Text("Salir") },
-            colors = NavigationBarItemDefaults.colors(selectedIconColor = VerdePrincipal)
-        )
+        }
     }
 }
