@@ -1,6 +1,11 @@
 package com.duoc.AgroDuocApp.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,20 +28,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.duoc.AgroDuocApp.model.Solicitud
+import com.duoc.AgroDuocApp.model.SolicitudDto
 import com.duoc.AgroDuocApp.repository.UserRepository
 import com.duoc.AgroDuocApp.ui.theme.CremaFondo
 import com.duoc.AgroDuocApp.ui.theme.VerdeClaro
 import com.duoc.AgroDuocApp.ui.theme.VerdeOscuro
 import com.duoc.AgroDuocApp.ui.theme.VerdePrincipal
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 
 @Composable
 fun HomeScreen(
@@ -63,6 +64,14 @@ fun HomeScreen(
                 permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+    }
+
+    val usuarioActual by solicitudViewModel.usuarioActual.collectAsState()
+    val solicitudesXano by solicitudViewModel.solicitudesProductorXano.collectAsState()
+    val cargandoXano by solicitudViewModel.cargandoXano.collectAsState()
+
+    LaunchedEffect(Unit) {
+        solicitudViewModel.cargarDatosProductor()
     }
 
     // Observa las solicitudes guardadas en Room desde el ViewModel
@@ -96,7 +105,7 @@ fun HomeScreen(
 
     Scaffold(
 
-        // 1. Dentro de HomeScreen, en el Scaffold:
+        // 1. Dentro de HomeScreen, en el Scaffold
         bottomBar = {
             BottomNavigationBar(
                 currentRoute = "home",
@@ -164,7 +173,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            // Lista Deslizable de Solicitudes desde Room
+            // Lista Deslizable de Solicitudes filtradas del Productor desde Xano
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,11 +181,37 @@ fun HomeScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(solicitudes, key = { it.id }) { solicitud ->
-                    SolicitudItem(
-                        solicitud = solicitud,
-                        onClick = { onSolicitudClick(solicitud.id) }
-                    )
+                if (cargandoXano) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = VerdePrincipal)
+                        }
+                    }
+                } else if (solicitudesXano.isEmpty()) {
+                    item {
+                        Text(
+                            text = if (usuarioActual != null) {
+                                "No tienes solicitudes registradas aún."
+                            } else {
+                                "Cargando solicitudes de tu sesión..."
+                            },
+                            color = Color.DarkGray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                } else {
+                    items(solicitudesXano, key = { it.id }) { solicitudDto ->
+                        SolicitudDtoItem(
+                            solicitud = solicitudDto,
+                            onClick = { onSolicitudClick(solicitudDto.id) }
+                        )
+                    }
                 }
             }
         }
@@ -209,11 +244,11 @@ fun CrearSolicitud(
 fun SolicitudItem(
     solicitud: Solicitud,
     onClick: () -> Unit = {}
-    ) {
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable{ onClick() },
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -244,6 +279,66 @@ fun SolicitudItem(
             if (solicitud.fechaDisponibilidad.isNotBlank()) {
                 Text(
                     text = "Disponibilidad: ${solicitud.fechaDisponibilidad}",
+                    fontSize = 13.sp,
+                    color = Color.DarkGray
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SolicitudDtoItem(
+    solicitud: SolicitudDto,
+    onClick: () -> Unit = {}
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = solicitud.tipo_producto,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = VerdeOscuro,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = solicitud.estado,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = VerdePrincipal
+                )
+            }
+            Text(
+                text = "Superficie: ${solicitud.superficie_ha} ha",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = VerdePrincipal
+            )
+            Text(
+                text = "Aplicación: ${solicitud.tipo_aplicacion}",
+                fontSize = 13.sp,
+                color = Color.DarkGray
+            )
+            if (!solicitud.comentarios.isNullOrBlank()) {
+                Text(
+                    text = "Comentarios: ${solicitud.comentarios}",
                     fontSize = 13.sp,
                     color = Color.DarkGray
                 )

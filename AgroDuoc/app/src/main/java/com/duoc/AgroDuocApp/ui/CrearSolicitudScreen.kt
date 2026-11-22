@@ -30,6 +30,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -54,6 +56,8 @@ fun CrearSolicitudScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val errorXano by solicitudViewModel.errorXano.collectAsState()
+
 
     LaunchedEffect(solicitudViewModel.guardadoExitoso) {
         if (solicitudViewModel.guardadoExitoso) {
@@ -282,6 +286,14 @@ fun CrearSolicitudScreen(
 
                     Spacer(modifier = Modifier.height(6.dp))
 
+                    if (!errorXano.isNullOrBlank()) {
+                        Text(
+                            text = errorXano!!,
+                            color = Color.Red,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                     // Botón Publicar Solicitud
                     Button(
                         onClick = { solicitudViewModel.guardarSolicitud() },
