@@ -1,76 +1,83 @@
 # TecMundo Connect (AgroDuocApp)
 
 ## Informacion General
-Este proyecto académico desarrollado para Duoc UC consiste en una aplicación móvil en Kotlin utilizando **Jetpack Compose**, arquitectura **MVVM** y persistencia local con **Room**, diseñada para conectar la producción agrícola con servicios de aplicación e insumos ("TecMundo Connect").
+Este proyecto académico desarrollado para Duoc UC consiste en una aplicación móvil Fullstack en Kotlin utilizando **Jetpack Compose**, arquitectura **MVVM**, persistencia local para sesión con **Room / SharedPreferences**, y conexión a un backend externo en la nube mediante **Xano (REST API)**. 
 
-Se trabaja con las librerías de AndroidX, Material Design 3, Navigation Compose, KSP y SQLite/Room.
+La aplicación está diseñada para conectar la producción agrícola con servicios de aplicación e insumos ("TecMundo Connect"), permitiendo a los usuarios registrarse como productores o aplicadores, iniciar sesión con autenticación segura por Token Bearer, visualizar su perfil, gestionar solicitudes y ofertas, y eliminar cuentas de forma permanente.
 
 ---
 
 ## Get Started
-Se recomienda el uso de **Android Studio** y un emulador Android configurado con API 34 o superior (o dispositivo físico).
+Para evaluar y utilizar la aplicación de forma directa, **se proveerá un APK firmado en modo release** listo para instalar en emuladores o dispositivos Android.
 
-Se debe clonar el repositorio para su ejecución con el comando:
+Si deseas clonar el repositorio y revisar el código fuente en **Android Studio**:
 
 ```shell
 git clone https://github.com/Proyecto-DAM-Grupo2-002D/AgroDuoc.git
 ```
 
 > [!NOTE]
-> Al momento de la ejecución, la base de datos local Room se encarga de estructurar las tablas de usuarios y productos automáticamente sin necesidad de configuración manual previa.
+> La aplicación requiere conexión a internet para consumir los endpoints de la API en Xano y permisos de cámara para la captura de la foto de perfil en el registro.
 
 > [!TIP]
-> Para probar la aplicación de manera fluida, se recomienda iniciar ejecutando la aplicación en el emulador y utilizar el flujo de registro de usuario con la cámara integrada.
+> Para probar la app, instala el APK proporcionado, presiona "Crear una Cuenta", completa el formulario seleccionando tu rol (Productor o Aplicador) y captura tu foto con la cámara integrada. Luego podrás iniciar sesión con tus credenciales.
 
 ---
 
-## Atributos de las Entidades de la Base de Datos (Room)
+## Flujo de Usuario y Uso de la Aplicación
 
-> **User**
-> - rut (Primary Key)
+1. **Pantalla de Inicio (Landing)**:
+   - Bienvenida a TecMundo Connect con gradiente agrícola y acceso directo a "Iniciar Sesión" y "Crear una Cuenta".
+2. **Registro de Cuenta (Sign Up)**:
+   - Formulario con validaciones de RUT chileno, email, teléfono y contraseña (mínimo 4 caracteres).
+   - Selección de rol mediante botones interactivos (`FilterChip`).
+   - Integración con el recurso nativo **Cámara** para capturar la foto de perfil y guardarla codificada en Base64 en el servidor.
+3. **Inicio de Sesión (Login)**:
+   - Autenticación conectada a Xano (`/auth/login`), generando y almacenando el token de sesión (`authToken`) para peticiones seguras (`AuthInterceptor`).
+4. **Pantalla Principal (Home & Solicitudes)**:
+   - Listado de solicitudes y ofertas agrícolas con diseño moderno en tarjetas Material 3.
+5. **Perfil de Usuario**:
+   - Visualización de datos de la cuenta obtenidos directamente desde la API en la nube.
+   - Opción de eliminar la cuenta de forma permanente conectada al backend (`DELETE /usuario/{usuario_id}`).
+
+---
+
+## Atributos de las Entidades del Backend (Xano)
+
+> **usuario**
+> - id (PK)
+> - created_at
 > - nombre
 > - apellido
+> - rut
 > - email
-> - telefono
-> - rol ("Productor" o "Aplicador")
 > - password
-> - fotoPerfilUri
-
-> **Producto**
-> - id (Primary Key, AutoGenerate)
-> - nombre
-> - precio
-> - nombreVendedor
+> - telefono
+> - rol ("productor" o "aplicador")
+> - foto_perfil (Base64)
 > - calificacion
-> - imagenProductoRes
-> - imagenVendedorRes
-> - imagenProductoUri
-> - imagenVendedorUri
 
----
+> **solicitud**
+> - id (PK)
+> - productor_id (FK)
+> - superficie_ha
+> - tipo_producto
+> - tiene_agua
+> - tipo_aplicacion
+> - estado
 
-> [!IMPORTANT]
-> ### REQUISITOS DE EJECUCIÓN
-> LA APLICACION REQUIERE QUE EL DISPOSITIVO O EMULADOR TENGA SOPORTE PARA CÁMARA PARA CAPTURAR LA FOTO DE PERFIL DEL USUARIO DURANTE EL REGISTRO.
-
-> [!NOTE]
-> ## Arquitectura y Módulos Principales del Sistema
->
-> - **Capa Model (`model/`)**
->   - Entidades Room y Data Classes (`User.kt`, `Producto.kt`)
->
-> - **Capa Repository (`repository/`)**
->   - Interfaces DAO (`UserDao.kt`), Base de Datos Singleton (`AppDatabase.kt`) y Repositorio (`UserRepository.kt`)
->
-> - **Capa ViewModel (`viewmodel/`)**
->   - Lógica de negocio y validación de formularios asíncrona (`LoginViewModel.kt`, `RegisterViewModel.kt`)
->
-> - **Capa UI (`ui/`)**
->   - Pantallas Compose (`LandingScreen.kt`, `LoginScreen.kt`, `RegisterScreen.kt`, `HomeScreen.kt`), temas y navegación con `NavHost` (`AppNavigation.kt`)
+> **oferta**
+> - id (PK)
+> - solicitud_id (FK)
+> - aplicador_id (FK)
+> - precio_por_ha
+> - precio_total_iva
+> - estado
 
 ---
 
 ## Autores
-- Tomás Martínez
 - Adriel Yañez
+- Javier Fuentealba
+- Tomás Martínez
 ### Grupo 2 - DSY1105 - Duoc UC
