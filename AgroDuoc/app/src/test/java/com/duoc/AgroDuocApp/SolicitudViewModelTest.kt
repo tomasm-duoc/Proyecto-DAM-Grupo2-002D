@@ -1,14 +1,16 @@
 package com.duoc.AgroDuocApp
 
 import android.app.Application
-import com.duoc.AgroDuocApp.model.Solicitud
+import com.duoc.AgroDuocApp.model.SolicitudDto
 import com.duoc.AgroDuocApp.repository.AppDatabase
 import com.duoc.AgroDuocApp.repository.SolicitudDao
+import com.duoc.AgroDuocApp.repository.XanoDataRepository
 import com.duoc.AgroDuocApp.viewmodel.SolicitudViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkConstructor
 import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.unmockkAll
@@ -46,9 +48,13 @@ class SolicitudViewModelTest {
         every { database.solicitudDao() } returns solicitudDao
         every { solicitudDao.obtenerSolicitudes() } returns flowOf(emptyList())
 
-        // Interceptamos AppDatabase para usar nuestro DAO simulado
+        // Interceptamos AppDatabase
         mockkObject(AppDatabase.Companion)
         every { AppDatabase.getDatabase(application) } returns database
+
+        // Interceptamos cualquier instancia creada de XanoDataRepository
+        mockkConstructor(XanoDataRepository::class)
+        coEvery { anyConstructed<XanoDataRepository>().obtenerSolicitudesDeProductorActual() } returns Pair(null, emptyList())
 
         viewModel = SolicitudViewModel(application)
     }
@@ -60,36 +66,57 @@ class SolicitudViewModelTest {
     }
 
     @Test
-    fun `guardarSolicitud inserta la solicitud en Room, limpia campos y activa guardadoExitoso`() = runTest {
+    fun `guardarSolicitud envia datos a Xano, limpia campos y activa guardadoExitoso`() = runTest {
         // Arrange (Llenamos los datos del formulario de solicitud)
         viewModel.ubicacion = "Fundo Santa Rosa, Curicó"
         viewModel.tipoCultivo = "Cerezos"
         viewModel.tipoProducto = "Fungicida"
-        viewModel.superficie = "8 hás"
+        viewModel.superficie = "8,5"
         viewModel.tieneAgua = true
         viewModel.aplicacion = "Nocturna"
-        viewModel.fechaDisponibilidad = "30/11/2026"
         viewModel.toggleObstaculo("Antenas")
         viewModel.toggleObstaculo("Cables")
         viewModel.comentarios = "Sector norte"
 
-        val solicitudCapturada = slot<Solicitud>()
-        coEvery { solicitudDao.insertarSolicitud(capture(solicitudCapturada)) } returns Unit
+        val superficieCapturada = slot<Double>()
+        val productoCapturado = slot<String>()
+        val comentariosCapturados = slot<String>()
+
+        coEvery {
+            anyConstructed<XanoDataRepository>().crearSolicitudXano(
+                superficieHa = capture(superficieCapturada),
+                tipoProducto = capture(productoCapturado),
+                tieneAgua = any(),
+                tipoAplicacion = any(),
+                fotos = any(),
+                comentarios = capture(comentariosCapturados)
+            )
+        } returns mockk<SolicitudDto>(relaxed = true)
 
         // Act
         viewModel.guardarSolicitud()
         advanceUntilIdle()
 
         // Assert
-        // 1. Verifica que se insertó en el DAO
-        coVerify(exactly = 1) { solicitudDao.insertarSolicitud(any()) }
+        // 1. Verifica que se llamó a crearSolicitudXano 1 vez
+        coVerify(exactly = 1) {
+            anyConstructed<XanoDataRepository>().crearSolicitudXano(
+                superficieHa = any(),
+                tipoProducto = any(),
+                tieneAgua = any(),
+                tipoAplicacion = any(),
+                fotos = any(),
+                comentarios = any()
+            )
+        }
 
-        // 2. Verifica que los datos enviados al DAO coinciden con el formulario
-        assertEquals("Fundo Santa Rosa, Curicó", solicitudCapturada.captured.ubicacion)
-        assertEquals("Cerezos", solicitudCapturada.captured.tipoCultivo)
-        assertEquals("Antenas, Cables", solicitudCapturada.captured.obstaculos)
+        // 2. Verifica que el ViewModel transformó los datos correctamente antes de enviarlos a Xano
+        assertEquals(8.5, superficieCapturada.captured, 0.01)
+        assertEquals("Fungicida", productoCapturado.captured)
+        assertTrue(comentariosCapturados.captured.contains("Cultivo: Cerezos"))
+        assertTrue(comentariosCapturados.captured.contains("Obstáculos: Antenas, Cables"))
 
-        // 3. Verifica que se activó el estado de éxito y se limpió el formulario
+        // 3. Verifica que se activó el estado de éxito (para la notificación) y se limpió el formulario
         assertTrue(viewModel.guardadoExitoso)
         assertEquals("", viewModel.ubicacion)
         assertEquals("", viewModel.tipoCultivo)

@@ -61,10 +61,16 @@ fun CrearSolicitudScreen(
 
     LaunchedEffect(solicitudViewModel.guardadoExitoso) {
         if (solicitudViewModel.guardadoExitoso) {
+            val detalle = if (solicitudViewModel.tipoCultivo.isNotBlank()) {
+                "Servicio de ${solicitudViewModel.tipoProducto} en ${solicitudViewModel.tipoCultivo} (${solicitudViewModel.superficie})."
+            } else {
+                "Tu solicitud agrícola se ha publicado correctamente."
+            }
+
             NotificationHelper.mostrarNotificacion(
                 context = context,
                 titulo = "🌱 Nueva Solicitud Publicada",
-                mensaje = "Servicio de ${solicitudViewModel.tipoProducto} en ${solicitudViewModel.tipoCultivo} (${solicitudViewModel.superficie})."
+                mensaje = detalle
             )
             solicitudViewModel.quitarEstadoGuardado()
             onSolicitudGuardada()
